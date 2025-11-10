@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pack de Estudio - Criptografía en Java</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .header h1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            /* Fallback for browsers that don't support -webkit-text-fill-color */
+            color: transparent;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .tabs {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .tab-button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f3f4f6;
+            color: #374151;
+        }
+        
+        .tab-button:hover {
+            background: #e5e7eb;
+        }
+        
+        .tab-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            min-height: 500px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* FLASHCARDS */
+        .flashcard-container {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .flashcard-counter {
+            color: #6b7280;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        
+        .flashcard {
+            perspective: 1000px;
+            height: 350px;
+            margin-bottom: 30px;
+            cursor: pointer;
+        }
+        
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        
+        .flashcard.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+        
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .flashcard-front {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .flashcard-back {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            transform: rotateY(180deg);
+        }
+        
+        .flashcard-text {
+            font-size: 1.5em;
+            font-weight: 600;
+            line-height: 1.5;
+            white-space: pre-line;
+        }
+        
+        .flashcard-hint {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-top: 15px;
+        }
+        
+        .flashcard-navigation {
+            display: flex;
+            justify-content: space-between;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .nav-button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #6b7280;
+            color: white;
+        }
+        
+        .nav-button:hover {
+            background: #4b5563;
+            transform: translateY(-2px);
+        }
+        
+        /* TABLES */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        th {
+            background: #f3f4f6;
+            font-weight: 600;
+        }
+        
+        .status-obsolete {
+            color: #dc2626;
+            font-weight: 600;
+        }
+        
+        .status-secure {
+            color: #059669;
+            font-weight: 600;
+        }
+        
+        .status-warning {
+            color: #d97706;
+            font-weight: 600;
+        }
+        
+        /* BOXES */
+        .info-box {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .warning-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .success-box {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .danger-box {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        /* GRID */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .card {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .card h3 {
+            color: #1f2937;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        /* CODE */
+        .code-block {
+            background: #1f2937;
+            color: #10b981;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        /* QUESTIONS */
+        .question {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .question h3 {
+            color: #1f2937;
+            margin-bottom: 15px;
+        }
+        
+        .options {
+            margin-top: 15px;
+        }
+        
+        .option {
+            background: white;
+            border: 2px solid #e5e7eb;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .option:hover {
+            border-color: #667eea;
+            background: #f3f4f6;
+        }
+        
+        .option.selected {
+            border-color: #667eea;
+            background: #eef2ff;
+        }
+        
+        .option.correct {
+            border-color: #10b981;
+            background: #d1fae5;
+        }
+        
+        .option.incorrect {
+            border-color: #ef4444;
+            background: #fee2e2;
+        }
+        
+        .explanation {
+            margin-top: 15px;
+            padding: 15px;
+            background: #fef3c7;
+            border-radius: 8px;
+            border-left: 4px solid #f59e0b;
+        }
+        
+        /* PROCESS STEPS */
+        .process-step {
+            display: flex;
+            align-items: flex-start;
+            margin: 15px 0;
+        }
+        
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            background: #f3f4f6;
+            padding: 15px;
+            border-radius: 8px;
+            flex: 1;
+        }
+        
+        .footer {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .footer h3 {
+            margin-bottom: 15px;
+        }
+        
+        .footer ul {
+            list-style: none;
+        }
+        
+        .footer li {
+            padding: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Pack Completo de Estudio</h1>
+            <p style="color: #6b7280; font-size: 1.1em;">Criptografía en Java - Preparación del Examen</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('flashcards')">📖 Flashcards</button>
+            <button class="tab-button" onclick="showTab('schemas')">🗺️ Esquemas</button>
+            <button class="tab-button" onclick="showTab('cheatsheet')">📄 Cheat Sheet</button>
+            <button class="tab-button" onclick="showTab('code')">💻 Código</button>
+            <button class="tab-button" onclick="showTab('practical')">🎯 Casos Prácticos</button>
+        </div>
+        
+        <div class="content">
+            <!-- FLASHCARDS TAB -->
+            <div id="flashcards" class="tab-content active">
+                <div class="flashcard-container">
+                    <div class="flashcard-counter">
+                        Tarjeta <span id="current-card">1</span> de <span id="total-cards">24</span>
+                    </div>
+                    <div class="flashcard" id="flashcard" onclick="flipCard()">
+                        <div class="flashcard-inner" id="flashcard-inner">
+                            <div class="flashcard-front">
+                                <div>
+                                    <div class="flashcard-text" id="card-front"></div>
+                                    <div class="flashcard-hint">Haz clic para ver la respuesta</div>
+                                </div>
+                            </div>
+                            <div class="flashcard-back">
+                                <div>
+                                    <div class="flashcard-text" id="card-back"></div>
+                                    <div class="flashcard-hint">Haz clic para volver</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flashcard-navigation">
+                        <button class="nav-button" onclick="prevCard()">← Anterior</button>
+                        <button class="nav-button" onclick="nextCard()">Siguiente →</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SCHEMAS TAB -->
+            <div id="schemas" class="tab-content">
+                <h2 style="color: #1f2937; margin-bottom: 25px;">🔐 Tipos de Criptografía</h2>
+                <div class="grid">
+                    <div class="card" style="border-left: 4px solid #3b82f6;">
+                        <h3>SIMÉTRICA</h3>
+                        <p style="margin-bottom: 10px;">🔑 1 clave compartida</p>
+                        <ul style="list-style: none; line-height: 1.8;">
+                            <li>✓ MUY rápida</li>
+                            <li>✓ Archivos grandes</li>
+                            <li>✗ Distribución de clave</li>
+                        </ul>
+                        <hr style="margin: 15px 0; border: none; border-top: 1px solid #e5e7eb;">
+                        <p><strong>Algoritmos:</strong></p>
+                        <p>AES (128/192/256)</p>
+                        <p style="color: #dc2626;">DES (obsoleto)</p>
+                    </div>
+                    
+                    <div class="card" style="border-left: 4px solid #8b5cf6;">
+                        <h3>ASIMÉTRICA</h3>
+                        <p style="margin-bottom: 10px;">🔑🔑 2 claves (pública/privada)</p>
+                        <ul style="list-style: none; line-height: 1.8;">
+                            <li>✓ Intercambio seguro</li>
+                            <li>✓ Firma digital</li>
+                            <li>✗ Más lenta</li>
+                        </ul>
+                        <hr style="margin: 15px 0; border: none; border-top: 1px solid #e5e7eb;">
+                        <p><strong>Algoritmos:</strong></p>
+                        <p>RSA (2048/4096)</p>
+                        <p>ECDSA (256)</p>
+                    </div>
+                </div>
+                
+                <h2 style="color: #1f2937; margin: 40px 0 25px;">🔨 HASH (Funciones Resumen)</h2>
+                <div class="warning-box">
+                    <h3>Característica clave: UNIDIRECCIONAL</h3>
+                    <div class="grid" style="margin-top: 15px;">
+                        <div>
+                            <p><strong>✅ Seguros:</strong></p>
+                            <ul style="list-style: none; line-height: 1.8;">
+                                <li>• SHA-256 / SHA-512</li>
+                                <li>• bcrypt (contraseñas)</li>
+                                <li>• Argon2 (contraseñas)</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <p><strong>❌ Obsoletos:</strong></p>
+                            <ul style="list-style: none; line-height: 1.8; color: #dc2626;">
+                                <li>• MD5</li>
+                                <li>• SHA-1</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <h2 style="color: #1f2937; margin: 40px 0 25px;">✍️ Firma Digital - Proceso</h2>
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">Calcular HASH del mensaje</div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">Cifrar hash con CLAVE PRIVADA = FIRMA</div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">Enviar mensaje + firma</div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number" style="background: #10b981;">4</div>
+                    <div class="step-content" style="background: #d1fae5;">Receptor descifra firma con CLAVE PÚBLICA</div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number" style="background: #10b981;">5</div>
+                    <div class="step-content" style="background: #d1fae5;">Comparar hashes → Si coinciden: ✅ VÁLIDO</div>
+                </div>
+                <div class="info-box" style="margin-top: 20px;">
+                    <p><strong>Garantiza:</strong></p>
+                    <p>✓ Autenticidad | ✓ Integridad | ✓ No repudio</p>
+                </div>
+                
+                <h2 style="color: #1f2937; margin: 40px 0 25px;">🎫 Estructura JWT</h2>
+                <div class="grid" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="card" style="border-left: 4px solid #ef4444;">
+                        <h3 style="color: #dc2626;">HEADER</h3>
+                        <p>Tipo de token</p>
+                        <p>Algoritmo (HS256)</p>
+                    </div>
+                    <div class="card" style="border-left: 4px solid #8b5cf6;">
+                        <h3 style="color: #7c3aed;">PAYLOAD</h3>
+                        <p>Claims (datos)</p>
+                        <p>Username, roles</p>
+                        <p>Expiración</p>
+                    </div>
+                    <div class="card" style="border-left: 4px solid #10b981;">
+                        <h3 style="color: #059669;">SIGNATURE</h3>
+                        <p>Verifica integridad</p>
+                        <p>HMAC(header+payload)</p>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 20px; font-family: monospace; background: #f3f4f6; padding: 15px; border-radius: 8px;">
+                    header.payload.signature
+                </div>
+                
+                <h2 style="color: #1f2937; margin: 40px 0 25px;">🔄 Cifrado Híbrido (TLS/HTTPS)</h2>
+                <div class="card" style="border-left: 4px solid #8b5cf6; background: #faf5ff;">
+                    <p style="font-size: 1.1em; margin-bottom: 10px;"><strong>Paso 1: Intercambio de clave</strong></p>
+                    <p>Usa RSA o ECDH (asimétrica) para intercambiar de forma segura una clave simétrica</p>
+                </div>
+                <div class="card" style="border-left: 4px solid #3b82f6; background: #eff6ff; margin-top: 15px;">
+                    <p style="font-size: 1.1em; margin-bottom: 10px;"><strong>Paso 2: Cifrado de datos</strong></p>
+                    <p>Usa AES (simétrica) para cifrar toda la comunicación - MUY RÁPIDO</p>
+                </div>
+                <div class="success-box" style="text-align: center; margin-top: 15px;">
+                    <strong style="font-size: 1.2em;">Resultado: Seguridad + Velocidad 🚀</strong>
+                </div>
+            </div>
+            
+            <!-- CHEAT SHEET TAB -->
+            <div id="cheatsheet" class="tab-content">
+                <h2 style="color: #1f2937; margin-bottom: 25px;">📊 Tabla de Algoritmos</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Algoritmo</th>
+                            <th>Tipo</th>
+                            <th>Longitud Clave</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>MD5</strong></td>
+                            <td>Hash</td>
+                            <td>128 bits</td>
+                            <td class="status-obsolete">❌ OBSOLETO</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SHA-1</strong></td>
+                            <td>Hash</td>
+                            <td>160 bits</td>
+                            <td class="status-obsolete">❌ OBSOLETO</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SHA-256</strong></td>
+                            <td>Hash</td>
+                            <td>256 bits</td>
+                            <td class="status-secure">✅ SEGURO</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SHA-512</strong></td>
+                            <td>Hash</td>
+                            <td>512 bits</td>
+                            <td class="status-secure">✅ MUY SEGURO</td>
+                        </tr>
+                        <tr>
+                            <td><strong>bcrypt/Argon2</strong></td>
+                            <td>Hash</td>
+                            <td>Variable</td>
+                            <td class="status-secure">✅ CONTRASEÑAS</td>
+                        </tr>
+                        <tr style="background: #f9fafb;">
+                            <td><strong>DES</strong></td>
+                            <td>Simétrica</td>
+                            <td>56 bits</td>
+                            <td class="status-obsolete">❌ OBSOLETO</td>
+                        </tr>
+                        <tr style="background: #f9fafb;">
+                            <td><strong>3DES</strong></td>
+                            <td>Simétrica</td>
+                            <td>168 bits</td>
+                            <td class="status-warning">⚠️ TEMPORAL</td>
+                        </tr>
+                        <tr style="background: #f9fafb;">
+                            <td><strong>AES</strong></td>
+                            <td>Simétrica</td>
+                            <td>128/192/256 bits</td>
+                            <td class="status-secure">✅ ESTÁNDAR</td>
+                        </tr>
+                        <tr style="background: #eff6ff;">
+                            <td><strong>RSA</strong></td>
+                            <td>Asimétrica</td>
+                            <td>2048-4096 bits</td>
+                            <td class="status-secure">✅ SEGURO</td>
+                        </tr>
+                        <tr style="background: #eff6ff;">
+                            <td><strong>ECDSA</strong></td>
+                            <td>Asimétrica</td>
+                            <td>256 bits</td>
+                            <td class="status-secure">✅ MODERNO</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h2 style="color: #1f2937; margin: 40px 0 25px;">⚖️ Comparativas Rápidas</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h3>Hash vs Cifrado</h3>
+                        <table style="margin: 0;">
+                            <tr>
+                                <td><strong>Dirección:</strong></td>
+                                <td>Hash: UNI | Cifrado: BI</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Clave:</strong></td>
+                                <td>Hash: NO | Cifrado: SÍ</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Longitud:</strong></td>
+                                <td>Hash: FIJA | Cifrado: VARIABLE</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Objetivo:</strong></td>
+                                <td>Hash: Integridad | Cifrado: Confidencialidad</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Simétrica vs Asimétrica</h3>
+                        <table style="margin: 0;">
+                            <tr>
+                                <td><strong>Claves:</strong></td>
+                                <td>Sim: 1 | Asim: 2</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Velocidad:</strong></td>
+                                <td>Sim: RÁPIDA | Asim: LENTA</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tamaño clave:</strong></td>
+                                <td>Sim: 256b | Asim: 2048b</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Uso:</strong></td>
+                                <td>Sim: Datos | Asim: Claves</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <h2 style="color: #1f2937; margin: 40px 0 25px;">🛡️ Spring Security - Métodos Clave</h2>
+                <div class="grid" style="grid-template-columns: repeat(2, 1fr);">
+                    <div class="card" style="border-left: 4px solid #10b981;">
+                        <p style="font-family: monospace; font-weight: bold; color: #059669;">.permitAll()</p>
+                        <p style="font-size: 0.9em; color: #6b7280;">Acceso sin autenticación</p>
+                    </div>
+                    <div class="card" style="border-left: 4px solid #3b82f6;">
+                        <p style="font-family: monospace; font-weight: bold; color: #2563eb;">.authenticated()</p>
+                        <p style="font-size: 0.9em; color: #6b7280;">Requiere estar logueado</p>
+                    </div>
+                    <div class="card" style="border-left: 4px solid #8b5cf6;">
+                        <p style="font-family: monospace; font-weight: bold; color: #7c3aed;">.hasRole("ADMIN")</p>
+                        <p style="font-size: 0.9em; color: #6b7280;">Requiere rol específico</p>
+                    </div>
+                    <div class="card" style="border-left: 4px solid #f59e0b;">
+                        <p style="font-family: monospace; font-weight: bold; color: #d97706;">.hasAuthority()</p>
+                        <p style="font-size: 0.9em; color: #6b7280;">Requiere autoridad específica</p>
+                    </div>
+                </div>
+                
+                <h2 style="color: #1f2937; margin: 40px 0 25px;">🔐 OAuth2 - Roles</h2>
+                <div class="card">
+                    <div style="display: grid; grid-template-columns: auto 1fr; gap: 15px; align-items: start;">
+                        <div style="background: #667eea; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">1</div>
+                        <div>
+                            <p style="font-weight: bold;">Client</p>
+                            <p style="font-size: 0.9em; color: #6b7280;">La aplicación que solicita acceso</p>
+                        </div>
+                        
+                        <div style="background: #667eea; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">3</div>
+                        <div>
+                            <p style="font-weight: bold;">Authorization Server</p>
+                            <p style="font-size: 0.9em; color: #6b7280;">Emite los tokens (ej: Google)</p>
+                        </div>
+                        
+                        <div style="background: #667eea; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">4</div>
+                        <div>
+                            <p style="font-weight: bold;">Resource Server</p>
+                            <p style="font-size: 0.9em; color: #6b7280;">Protege los recursos/datos</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <h2 style="color: #1f2937; margin: 40px 0 25px;">🔒 Modos de Operación AES</h2>
+                <div class="grid" style="grid-template-columns: repeat(2, 1fr);">
+                    <div class="card" style="background: #fee2e2; border-left: 4px solid #ef4444;">
+                        <p style="font-family: monospace; font-weight: bold;">ECB</p>
+                        <p style="color: #dc2626; font-size: 0.9em;">❌ NO RECOMENDADO</p>
+                    </div>
+                    <div class="card" style="background: #fef3c7; border-left: 4px solid #f59e0b;">
+                        <p style="font-family: monospace; font-weight: bold;">CBC</p>
+                        <p style="color: #d97706; font-size: 0.9em;">⚠️ Aceptable</p>
+                    </div>
+                    <div class="card" style="background: #d1fae5; border-left: 4px solid #10b981;">
+                        <p style="font-family: monospace; font-weight: bold;">GCM</p>
+                        <p style="color: #059669; font-size: 0.9em;">✅ RECOMENDADO</p>
+                    </div>
+                    <div class="card" style="background: #dbeafe; border-left: 4px solid #3b82f6;">
+                        <p style="font-family: monospace; font-weight: bold;">CTR</p>
+                        <p style="color: #2563eb; font-size: 0.9em;">✅ Bueno</p>
+                    </div>
+                </div>
+                
+                <h2 style="color: #1f2937; margin: 40px 0 25px;">⚖️ Equivalencias de Seguridad</h2>
+                <div style="background: linear-gradient(135deg, #faf5ff 0%, #eff6ff 100%); padding: 30px; border-radius: 12px; text-align: center;">
+                    <p style="font-size: 1.5em; font-weight: bold; color: #1f2937;">256 bits ECDSA ≈ 3072 bits RSA</p>
+                    <p style="color: #6b7280; margin-top: 10px;">Misma seguridad, claves más cortas = más eficiente</p>
+                </div>
+                
+                <h2 style="color: #1f2937; margin: 40px 0 25px;">⚠️ IMPORTANTE - No confundir</h2>
+                <div class="danger-box">
+                    <ul style="list-style: none; line-height: 2;">
+                        <li><strong>• Hash NO es cifrado</strong> - Hash es irreversible, cifrado es reversible</li>
+                        <li><strong>• JWT es stateless</strong> - No requiere almacenar sesiones en servidor</li>
+                        <li><strong>• Firma digital</strong> - Se cifra con clave PRIVADA, se verifica con PÚBLICA</li>
+                        <li><strong>• OAuth2 es autorización</strong> - NO es autenticación directa</li>
+                        <li><strong>• bcrypt para contraseñas</strong> - NO usar SHA-256 directamente</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- CODE TAB -->
+            <div id="code" class="tab-content">
+                <div class="info-box">
+                    <strong>Instrucciones:</strong> Lee cada código y identifica el error. Haz clic en la respuesta correcta.
+                </div>
+                
+                <div id="code-questions"></div>
+                
+                <div style="background: linear-gradient(135deg, #faf5ff 0%, #eff6ff 100%); padding: 25px; border-radius: 12px; margin-top: 30px;">
+                    <h3 style="color: #7c3aed; margin-bottom: 15px;">💡 Consejos para código:</h3>
+                    <ul style="line-height: 1.8;">
+                        <li>• Busca algoritmos obsoletos (MD5, SHA-1, DES)</li>
+                        <li>• Verifica que JWT esté firmado (.signWith)</li>
+                        <li>• Comprueba la lógica de validación (true/false invertidos)</li>
+                        <li>• AES necesita modo y padding especificados</li>
+                        <li>• Spring Security: permisos invertidos son un error común</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- PRACTICAL TAB -->
+            <div id="practical" class="tab-content">
+                <div class="success-box">
+                    <strong>Instrucciones:</strong> Lee cada caso práctico y elige la mejor solución. Después de responder verás la explicación.
+                </div>
+                
+                <div id="practical-cases"></div>
+                
+                <div style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); padding: 25px; border-radius: 12px; margin-top: 30px;">
+                    <h3 style="color: #059669; margin-bottom: 15px;">🎯 Tips para casos prácticos:</h3>
+                    <ul style="line-height: 1.8;">
+                        <li><strong>• Archivos grandes:</strong> Siempre criptografía simétrica (AES)</li>
+                        <li><strong>• Verificar origen:</strong> Firma digital</li>
+                        <li><strong>• APIs sin sesiones:</strong> JWT</li>
+                        <li><strong>• Login social:</strong> OAuth2</li>
+                        <li><strong>• Contraseñas en BD:</strong> bcrypt/Argon2, NUNCA texto plano</li>
+                        <li><strong>• Comunicación segura:</strong> Cifrado híbrido (asimétrica + simétrica)</li>
+                        <li><strong>• IoT/recursos limitados:</strong> ECDSA (claves cortas)</li>
+                        <li><strong>• Verificar integridad de archivos:</strong> Hash (SHA-256)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <h3>🚀 Estrategia para el examen:</h3>
+            <ul>
+                <li>✓ Repasa las flashcards varias veces</li>
+                <li>✓ Memoriza la cheat sheet (longitudes de clave, algoritmos obsoletos)</li>
+                <li>✓ Practica identificar errores en código</li>
+                <li>✓ Entiende CUÁNDO usar cada tecnología (casos prácticos)</li>
+                <li>✓ No confundas conceptos: Hash vs Cifrado, OAuth2 vs JWT</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        // FLASHCARDS DATA
+        const flashcards = [
+            { front: "¿Qué es un HASH?", back: "Función matemática UNIDIRECCIONAL que transforma datos de cualquier tamaño en una cadena de LONGITUD FIJA. Es IRREVERSIBLE." },
+            { front: "Diferencia: Hash vs Cifrado", back: "HASH: Unidireccional, no usa clave, longitud fija, verifica integridad\nCIFRADO: Bidireccional, usa clave(s), longitud variable, protege confidencialidad" },
+            { front: "¿Qué es el efecto avalancha?", back: "Un pequeño cambio en el input genera un hash COMPLETAMENTE DIFERENTE. Característica clave de las funciones hash seguras." },
+            { front: "Algoritmos hash: ¿Cuáles están obsoletos?", back: "OBSOLETOS: MD5, SHA-1\nSEGUROS: SHA-256, SHA-512, bcrypt, scrypt, Argon2" },
+            { front: "Criptografía Simétrica: Ventajas", back: "✓ Muy rápida\n✓ Menor carga computacional\n✓ Ideal para archivos grandes\n✗ Problema: distribución segura de la clave" },
+            { front: "AES: Longitudes de clave", back: "128, 192 o 256 bits\nBloques: 128 bits\nModo recomendado: GCM\nModo NO recomendado: ECB" },
+            { front: "DES vs 3DES vs AES", back: "DES: 56 bits - OBSOLETO\n3DES: Triple DES - Solución temporal\nAES: 128/192/256 bits - ACTUAL ESTÁNDAR" },
+            { front: "Criptografía Asimétrica: Concepto", back: "PAR DE CLAVES:\n• Pública (se comparte)\n• Privada (secreta)\nCifrar con pública → Descifrar con privada\nCifrar con privada → Descifrar con pública (firma)" },
+            { front: "RSA: Longitud mínima actual", back: "MÍNIMO RECOMENDADO: 2048 bits\nTambién común: 4096 bits\nSeguridad: Factorización de números primos" },
+            { front: "Cifrado Híbrido (TLS/HTTPS)", back: "1. ASIMÉTRICA (RSA/ECDH): Intercambio seguro de clave\n2. SIMÉTRICA (AES): Cifrado de datos\nCombina seguridad + velocidad" },
+            { front: "Firma Digital: Proceso", back: "1. Hash del mensaje\n2. Cifrar hash con CLAVE PRIVADA = FIRMA\n3. Enviar mensaje + firma\n4. Receptor descifra con CLAVE PÚBLICA\n5. Compara hashes" },
+            { front: "Firma Digital: ¿Qué garantiza?", back: "✓ AUTENTICIDAD: Solo el dueño de la clave privada pudo firmar\n✓ INTEGRIDAD: Cualquier cambio invalida la firma\n✓ NO REPUDIO: No puede negar haberlo enviado" },
+            { front: "ECDSA vs RSA", back: "ECDSA (Curvas Elípticas):\n✓ Claves más cortas (256 bits ≈ 3072 bits RSA)\n✓ Más rápido\n✓ Menos recursos\nUso: Bitcoin, TLS 1.3, IoT" },
+            { front: "Spring Security: Métodos de acceso", back: "• permitAll() - Sin autenticación\n• authenticated() - Requiere login\n• hasRole('ADMIN') - Rol específico\n• hasAuthority() - Autoridad específica" },
+            { front: "Spring Security: Protección por defecto", back: "Protege contra:\n• CSRF (Cross-Site Request Forgery)\n• XSS (Cross-Site Scripting)\n• Session Fixation\n• Clickjacking" },
+            { front: "OAuth2: ¿Qué es?", back: "Protocolo de AUTORIZACIÓN DELEGADA\nNO es autenticación directa\nPermite acceso sin compartir contraseñas\nEjemplo: 'Iniciar sesión con Google'" },
+            { front: "OAuth2: Roles principales", back: "• Resource Owner: Usuario\n• Client: Aplicación\n• Authorization Server: Emite tokens\n• Resource Server: Protege recursos" },
+            { front: "JWT: Estructura", back: "header.payload.signature\n\n• HEADER: Tipo y algoritmo\n• PAYLOAD: Datos del usuario (claims)\n• SIGNATURE: Firma para verificar integridad" },
+            { front: "JWT: Ventajas principales", back: "✓ STATELESS: No guarda sesiones en servidor\n✓ Autocontenido: Incluye info del usuario\n✓ Portable: Funciona entre dominios\n✓ Compacto: Fácil de transmitir" },
+            { front: "JWT: Algoritmo de firma común", back: "HS256 (HMAC-SHA256)\nClave simétrica para firmar y verificar\nOtras opciones: RS256 (RSA), ES256 (ECDSA)" },
+            { front: "bcrypt: ¿Para qué se usa?", back: "Especializado para ALMACENAR CONTRASEÑAS\n✓ Lento a propósito (protege contra fuerza bruta)\n✓ Salt automático\n✓ Factor de trabajo ajustable" },
+            { front: "Comparativa velocidad: Simétrica vs Asimétrica", back: "SIMÉTRICA: MUY RÁPIDA\nClaves: 128-256 bits\n\nASIMÉTRICA: LENTA\nClaves: 2048-4096 bits\n\n¡Por eso se usa cifrado híbrido!" },
+            { front: "¿Cuándo usar Hash?", back: "• Almacenar contraseñas\n• Verificar integridad de archivos\n• Firma digital\n• Blockchain\n• Detectar duplicados" },
+            { front: "Spring Security: UserDetailsService", back: "Interfaz para cargar datos de usuario\nMétodo principal: loadUserByUsername()\nImplementaciones:\n• InMemoryUserDetailsManager\n• JdbcUserDetailsManager\n• Custom" }
+        ];
+        
+        let currentCardIndex = 0;
+        
+        function showCard(index) {
+            document.getElementById('card-front').textContent = flashcards[index].front;
+            document.getElementById('card-back').textContent = flashcards[index].back;
+            document.getElementById('current-card').textContent = index + 1;
+            document.getElementById('total-cards').textContent = flashcards.length;
+            document.getElementById('flashcard').classList.remove('flipped');
+        }
+        
+        function flipCard() {
+            document.getElementById('flashcard').classList.toggle('flipped');
+        }
+        
+        function nextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            showCard(currentCardIndex);
+        }
+        
+        function prevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            showCard(currentCardIndex);
+        }
+        
+        // CODE QUESTIONS DATA
+        const codeQuestions = [
+            {
+                id: 1,
+                question: "¿Qué está MAL en esta configuración de Spring Security?",
+                code: `@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) {
+        http.authorizeHttpRequests(auth -> auth
+            .requestMatchers("/admin/**").permitAll()
+            .requestMatchers("/public/**").hasRole("ADMIN")
+            .anyRequest().authenticated()
+        );
+        return http.build();
+    }
+}`,
+                options: [
+                    "Las rutas están invertidas: /admin debe requerir rol ADMIN y /public debe ser permitAll()",
+                    "Falta el @Bean en el método",
+                    "El método debe llamarse securityFilterChain",
+                    "No se puede usar lambda en authorizeHttpRequests"
+                ],
+                correct: 0
+            },
+            {
+                id: 2,
+                question: "¿Qué error tiene este código de generación de JWT?",
+                code: `public String createToken(String username) {
+    Date now = new Date();
+    Date validity = new Date(now.getTime() + 3600000);
+    
+    return Jwts.builder()
+        .setSubject(username)
+        .setIssuedAt(now)
+        .setExpiration(validity)
+        .compact(); // ¿Falta algo?
+}`,
+                options: [
+                    "Falta .signWith() para firmar el token",
+                    "El tiempo de validez está mal calculado",
+                    "Falta setIssuer()",
+                    "No se pueden usar Dates"
+                ],
+                correct: 0
+            },
+            {
+                id: 3,
+                question: "¿Qué problema tiene este hash de contraseña?",
+                code: `public String hashPassword(String password) {
+    MessageDigest md = MessageDigest.getInstance("MD5");
+    byte[] hash = md.digest(password.getBytes());
+    return Base64.getEncoder().encodeToString(hash);
+}`,
+                options: [
+                    "MD5 está obsoleto y es vulnerable, debería usar bcrypt o Argon2",
+                    "Falta el try-catch",
+                    "Base64 no es adecuado para contraseñas",
+                    "Debería usar SHA-1 en lugar de MD5"
+                ],
+                correct: 0
+            },
+            {
+                id: 4,
+                question: "¿Cuál es el problema en esta validación de JWT?",
+                code: `public boolean validateToken(String token) {
+    try {
+        Jwts.parser()
+            .setSigningKey(secretKey)
+            .parseClaimsJws(token);
+        return true;
+    } catch (Exception e) {
+        return true; // ¿Esto está bien?
+    }
+}`,
+                options: [
+                    "El catch devuelve true cuando debería devolver false (token inválido)",
+                    "Falta comprobar la fecha de expiración",
+                    "El método debe ser void",
+                    "No se puede usar Exception genérico"
+                ],
+                correct: 0
+            },
+            {
+                id: 5,
+                question: "¿Qué está mal en este cifrado AES?",
+                code: `Cipher cipher = Cipher.getInstance("AES");
+cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+byte[] encrypted = cipher.doFinal(plaintext.getBytes());`,
+                options: [
+                    "Falta especificar el modo y padding (ej: AES/GCM/NoPadding), ECB no es seguro",
+                    "La clave debe ser de 256 bits",
+                    "Falta el IV (Initialization Vector)",
+                    "A y C son correctas"
+                ],
+                correct: 3
+            }
+        ];
+        
+        // PRACTICAL CASES DATA
+        const practicalCases = [
+            {
+                id: 1,
+                scenario: "Una empresa necesita cifrar documentos PDF de gran tamaño (varios GB) para almacenarlos en la nube. ¿Qué solución recomiendas?",
+                options: [
+                    "RSA (criptografía asimétrica)",
+                    "AES-256 en modo GCM (criptografía simétrica)",
+                    "Solo aplicar SHA-256 hash",
+                    "MD5 para mayor velocidad"
+                ],
+                correct: 1,
+                explanation: "AES-256 es ideal para archivos grandes por su velocidad. RSA sería demasiado lento. Hash no cifra, solo verifica integridad."
+            },
+            {
+                id: 2,
+                scenario: "Necesitas implementar un sistema donde usuarios puedan verificar que un mensaje viene realmente del CEO de la empresa. ¿Qué implementas?",
+                options: [
+                    "Cifrado simétrico compartido",
+                    "Firma digital con la clave privada del CEO",
+                    "Hash SHA-256 del mensaje",
+                    "OAuth2 con Google"
+                ],
+                correct: 1,
+                explanation: "La firma digital garantiza autenticidad (solo el CEO con su clave privada puede firmar) y no repudio."
+            },
+            {
+                id: 3,
+                scenario: "Estás desarrollando una API REST que debe funcionar sin sesiones del lado del servidor. Los usuarios necesitan autenticarse. ¿Qué implementas?",
+                options: [
+                    "Cookies de sesión tradicionales",
+                    "HTTP Basic Authentication",
+                    "JWT (JSON Web Tokens)",
+                    "Guardar contraseñas en localStorage"
+                ],
+                correct: 2,
+                explanation: "JWT es stateless (no requiere almacenar sesiones en servidor), autocontenido y perfecto para APIs REST."
+            },
+            {
+                id: 4,
+                scenario: "Una app necesita permitir login con Google, Facebook y GitHub sin manejar las contraseñas. ¿Qué protocolo usas?",
+                options: [
+                    "JWT directo",
+                    "OAuth2",
+                    "SAML",
+                    "Basic Authentication"
+                ],
+                correct: 1,
+                explanation: "OAuth2 es el estándar para autorización delegada, permitiendo login social sin manejar contraseñas."
+            },
+            {
+                id: 5,
+                scenario: "Necesitas almacenar contraseñas en la base de datos de forma segura. ¿Qué método usas?",
+                options: [
+                    "Texto plano (sin cifrar)",
+                    "SHA-256 directo",
+                    "AES-256 cifrado reversible",
+                    "bcrypt o Argon2 con salt"
+                ],
+                correct: 3,
+                explanation: "bcrypt/Argon2 están diseñados específicamente para contraseñas: lentos a propósito, con salt automático y factor de trabajo ajustable."
+            },
+            {
+                id: 6,
+                scenario: "Dos servidores necesitan comunicarse de forma segura en internet, enviando datos sensibles constantemente. ¿Qué esquema de cifrado usas?",
+                options: [
+                    "Solo RSA para todo",
+                    "Solo AES con clave compartida de antemano",
+                    "Cifrado híbrido: RSA/ECDH para intercambio + AES para datos",
+                    "No cifrar, usar VPN"
+                ],
+                correct: 2,
+                explanation: "Cifrado híbrido (como en TLS/HTTPS): asimétrico para intercambio seguro de clave, simétrico para velocidad en los datos."
+            },
+            {
+                id: 7,
+                scenario: "Desarrollas una app IoT para dispositivos con recursos limitados que necesitan firma digital. ¿Qué algoritmo eliges?",
+                options: [
+                    "RSA 4096 bits",
+                    "ECDSA 256 bits",
+                    "DSA 2048 bits",
+                    "SHA-512 hash"
+                ],
+                correct: 1,
+                explanation: "ECDSA ofrece la misma seguridad que RSA pero con claves más cortas (256 vs 3072 bits), ideal para dispositivos limitados."
+            },
+            {
+                id: 8,
+                scenario: "Un usuario descarga un archivo ISO de Linux. ¿Cómo puede verificar que no ha sido alterado?",
+                options: [
+                    "Comparar el hash SHA-256 del archivo con el publicado oficialmente",
+                    "Abrirlo y revisar los archivos",
+                    "Confiar en el sitio web",
+                    "Usar un antivirus"
+                ],
+                correct: 0,
+                explanation: "El hash (huella digital) permite verificar integridad: si el archivo cambia aunque sea un bit, el hash será completamente diferente."
+            }
+        ];
+        
+        // Initialize
+        showCard(0);
+        
+        // Render Code Questions
+        const codeContainer = document.getElementById('code-questions');
+        codeQuestions.forEach((q, index) => {
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question';
+            questionDiv.innerHTML = `
+                <h3>Pregunta ${index + 1}: ${q.question}</h3>
+                <div class="code-block">${q.code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+                <div class="options" id="code-options-${q.id}">
+                    ${q.options.map((opt, i) => `
+                        <div class="option" onclick="selectCodeOption(${q.id}, ${i}, ${q.correct})">
+                            ${opt}
+                        </div>
+                    `).join('')}
+                </div>
+                <div id="code-explanation-${q.id}" style="display: none;"></div>
+            `;
+            codeContainer.appendChild(questionDiv);
+        });
+        
+        // Render Practical Cases
+        const practicalContainer = document.getElementById('practical-cases');
+        practicalCases.forEach((c, index) => {
+            const caseDiv = document.createElement('div');
+            caseDiv.className = 'question';
+            caseDiv.innerHTML = `
+                <h3>Caso ${index + 1}</h3>
+                <p style="margin-bottom: 15px;">${c.scenario}</p>
+                <div class="options" id="practical-options-${c.id}">
+                    ${c.options.map((opt, i) => `
+                        <div class="option" onclick="selectPracticalOption(${c.id}, ${i}, ${c.correct}, '${c.explanation.replace(/'/g, "\\'")}')">
+                            ${opt}
+                        </div>
+                    `).join('')}
+                </div>
+                <div id="practical-explanation-${c.id}" style="display: none;"></div>
+            `;
+            practicalContainer.appendChild(caseDiv);
+        });
+        
+        function selectCodeOption(questionId, selected, correct) {
+            const optionsDiv = document.getElementById(`code-options-${questionId}`);
+            const options = optionsDiv.querySelectorAll('.option');
+            const explanationDiv = document.getElementById(`code-explanation-${questionId}`);
+            
+            options.forEach((opt, i) => {
+                opt.onclick = null;
+                if (i === correct) {
+                    opt.classList.add('correct');
+                } else if (i === selected && i !== correct) {
+                    opt.classList.add('incorrect');
+                }
+            });
+            
+            const question = codeQuestions.find(q => q.id === questionId);
+            if (selected === correct) {
+                explanationDiv.className = 'success-box';
+                explanationDiv.innerHTML = '<strong>✅ ¡Correcto!</strong>';
+            } else {
+                explanationDiv.className = 'explanation';
+                explanationDiv.innerHTML = `<strong>❌ Incorrecto</strong><br><br><strong>Respuesta correcta:</strong> ${question.options[correct]}`;
+            }
+            explanationDiv.style.display = 'block';
+        }
+        
+        function selectPracticalOption(caseId, selected, correct, explanation) {
+            const optionsDiv = document.getElementById(`practical-options-${caseId}`);
+            const options = optionsDiv.querySelectorAll('.option');
+            const explanationDiv = document.getElementById(`practical-explanation-${caseId}`);
+            
+            options.forEach((opt, i) => {
+                opt.onclick = null;
+                if (i === correct) {
+                    opt.classList.add('correct');
+                } else if (i === selected && i !== correct) {
+                    opt.classList.add('incorrect');
+                }
+            });
+            
+            if (selected === correct) {
+                explanationDiv.className = 'success-box';
+                explanationDiv.innerHTML = `<strong>✅ ¡Correcto!</strong><br><br><strong>Explicación:</strong> ${explanation}`;
+            } else {
+                explanationDiv.className = 'warning-box';
+                explanationDiv.innerHTML = `<strong>💡 Revisa la explicación:</strong><br><br>${explanation}`;
+            }
+            explanationDiv.style.display = 'block';
+        }
+        
+        function showTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Remove active from all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Highlight active button
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
