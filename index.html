@@ -1082,7 +1082,9 @@ byte[] encrypted = cipher.doFinal(plaintext.getBytes());`,
             questionDiv.className = 'question';
             questionDiv.innerHTML = `
                 <h3>Pregunta ${index + 1}: ${q.question}</h3>
-                <div class="code-block">${q.code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+                <div class="code-block">
+                    <pre><code>${q.code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
+                </div>
                 <div class="options" id="code-options-${q.id}">
                     ${q.options.map((opt, i) => `
                         <div class="option" onclick="selectCodeOption(${q.id}, ${i}, ${q.correct})">
