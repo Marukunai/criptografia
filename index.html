@@ -36,8 +36,6 @@
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            /* Fallback for browsers that don't support -webkit-text-fill-color */
-            color: transparent;
             font-size: 2.5em;
             margin-bottom: 10px;
         }
@@ -394,17 +392,56 @@
         .footer li {
             padding: 5px 0;
         }
+
+        /* TEST RESULT */
+        .test-result {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .test-result h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .test-result.fail {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 20px auto;
+            display: block;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Pack Completo de Estudio</h1>
+            <h1>📚 Pack Completo de Estudio</h1>
             <p style="color: #6b7280; font-size: 1.1em;">Criptografía en Java - Preparación del Examen</p>
         </div>
         
         <div class="tabs">
-            <button class="tab-button active" onclick="showTab('flashcards')">📖 Flashcards</button>
+            <button class="tab-button active" onclick="showTab('test')">✅ Test General</button>
+            <button class="tab-button" onclick="showTab('flashcards')">📖 Flashcards</button>
             <button class="tab-button" onclick="showTab('schemas')">🗺️ Esquemas</button>
             <button class="tab-button" onclick="showTab('cheatsheet')">📄 Cheat Sheet</button>
             <button class="tab-button" onclick="showTab('code')">💻 Código</button>
@@ -412,8 +449,22 @@
         </div>
         
         <div class="content">
+            <!-- TEST GENERAL TAB -->
+            <div id="test" class="tab-content active">
+                <div class="info-box">
+                    <strong>Test General de Criptografía</strong><br>
+                    30 preguntas tipo test sobre todo el temario. Selecciona la respuesta correcta en cada pregunta.
+                </div>
+                
+                <div id="test-questions"></div>
+                
+                <button class="submit-button" onclick="submitTest()">Ver Resultados</button>
+                
+                <div id="test-result" style="display: none;"></div>
+            </div>
+
             <!-- FLASHCARDS TAB -->
-            <div id="flashcards" class="tab-content active">
+            <div id="flashcards" class="tab-content">
                 <div class="flashcard-container">
                     <div class="flashcard-counter">
                         Tarjeta <span id="current-card">1</span> de <span id="total-cards">24</span>
@@ -750,7 +801,7 @@
                     <p style="font-size: 1.5em; font-weight: bold; color: #1f2937;">256 bits ECDSA ≈ 3072 bits RSA</p>
                     <p style="color: #6b7280; margin-top: 10px;">Misma seguridad, claves más cortas = más eficiente</p>
                 </div>
-                
+
                 <h2 style="color: #1f2937; margin: 40px 0 25px;">⚠️ IMPORTANTE - No confundir</h2>
                 <div class="danger-box">
                     <ul style="list-style: none; line-height: 2;">
@@ -810,17 +861,51 @@
         <div class="footer">
             <h3>🚀 Estrategia para el examen:</h3>
             <ul>
+                <li>✓ Haz el test general primero para evaluar tu nivel</li>
                 <li>✓ Repasa las flashcards varias veces</li>
                 <li>✓ Memoriza la cheat sheet (longitudes de clave, algoritmos obsoletos)</li>
                 <li>✓ Practica identificar errores en código</li>
                 <li>✓ Entiende CUÁNDO usar cada tecnología (casos prácticos)</li>
-                <li>✓ No confundas conceptos: Hash vs Cifrado, OAuth2 vs JWT</li>
             </ul>
         </div>
     </div>
     
     <script>
-        // FLASHCARDS DATA
+        // TEST GENERAL - 30 PREGUNTAS (REORDENADAS)
+        const testQuestions = [
+            { id: 1, question: "¿Cuál es la principal característica de una función hash?", options: ["Es bidireccional", "Es unidireccional e irreversible", "Requiere dos claves", "Genera salidas de longitud variable"], correct: 1 },
+            { id: 2, question: "¿Qué algoritmo de cifrado simétrico es el estándar actual?", options: ["DES", "3DES", "AES", "RSA"], correct: 2 },
+            { id: 3, question: "En criptografía asimétrica, ¿con qué clave se CIFRA para garantizar confidencialidad?", options: ["Clave privada", "Clave pública", "Clave simétrica", "No se usa clave"], correct: 1 },
+            { id: 4, question: "¿Qué longitud de bloque utiliza AES?", options: ["64 bits", "128 bits", "192 bits", "256 bits"], correct: 1 },
+            { id: 5, question: "¿Cuál de estos NO es un objetivo de la criptografía?", options: ["Confidencialidad", "Integridad", "Velocidad máxima", "No repudio"], correct: 2 },
+            { id: 6, question: "¿Con qué clave se FIRMA un documento digitalmente?", options: ["Clave pública", "Clave privada", "Clave simétrica", "Clave de sesión"], correct: 1 },
+            { id: 7, question: "¿Qué modo de operación de AES NO está recomendado?", options: ["GCM", "CBC", "ECB", "CTR"], correct: 2 },
+            { id: 8, question: "DES tiene una clave de:", options: ["56 bits", "128 bits", "192 bits", "256 bits"], correct: 0 },
+            { id: 9, question: "¿Qué garantiza una firma digital? (más completa)", options: ["Solo integridad", "Solo autenticidad", "Autenticidad, integridad y no repudio", "Solo confidencialidad"], correct: 2 },
+            { id: 10, question: "ECDSA 256 bits equivale en seguridad aproximadamente a RSA de:", options: ["1024 bits", "2048 bits", "3072 bits", "4096 bits"], correct: 2 },
+            { id: 11, question: "¿Qué parte de JWT contiene los datos del usuario?", options: ["Header", "Payload", "Signature", "Token"], correct: 1 },
+            { id: 12, question: "JWT es un sistema:", options: ["Stateful", "Stateless", "Híbrido", "Con sesiones"], correct: 1 },
+            { id: 13, question: "¿Qué algoritmo se usa típicamente para firmar JWT?", options: ["RSA", "AES", "HS256 (HMAC-SHA256)", "MD5"], correct: 2 },
+            { id: 14, question: "OAuth2 es un protocolo de:", options: ["Autenticación", "Autorización", "Cifrado", "Hash"], correct: 1 },
+            { id: 15, question: "En Spring Security, ¿qué método permite acceso sin autenticación?", options: ["authenticated()", "hasRole()", "permitAll()", "denyAll()"], correct: 2 },
+            { id: 16, question: "¿Contra qué ataque NO protege Spring Security por defecto?", options: ["CSRF", "XSS", "DDoS", "Session Fixation"], correct: 2 },
+            { id: 17, question: "¿Qué es el efecto avalancha en hash?", options: ["El hash crece proporcionalmente", "Pequeño cambio = hash totalmente diferente", "Se generan múltiples hashes", "El proceso se vuelve más lento"], correct: 1 },
+            { id: 18, question: "bcrypt está especializado para:", options: ["Archivos grandes", "Almacenar contraseñas", "Cifrar comunicaciones", "Firmar documentos"], correct: 1 },
+            { id: 19, question: "¿Cuál es la longitud MÍNIMA recomendada para claves RSA actualmente?", options: ["512 bits", "1024 bits", "2048 bits", "4096 bits"], correct: 2 },
+            { id: 20, question: "En un cifrado híbrido (TLS/HTTPS), ¿qué se usa para intercambiar la clave?", options: ["Criptografía simétrica", "Criptografía asimétrica", "Solo hash", "Texto plano"], correct: 1 },
+            { id: 21, question: "¿Qué algoritmo hash está OBSOLETO?", options: ["SHA-256", "SHA-512", "MD5", "bcrypt"], correct: 2 },
+            { id: 22, question: "La principal VENTAJA de la criptografía simétrica es:", options: ["No requiere intercambio de claves", "Es muy rápida", "Usa dos claves", "Permite firma digital"], correct: 1 },
+            { id: 23, question: "La principal DESVENTAJA de la criptografía simétrica es:", options: ["Es muy lenta", "No puede cifrar archivos grandes", "Distribución segura de la clave", "No es segura"], correct: 2 },
+            { id: 24, question: "¿Cuál de estas longitudes NO es válida para AES?", options: ["128 bits", "192 bits", "224 bits", "256 bits"], correct: 2 },
+            { id: 25, question: "¿Qué se debe cifrar con la clave privada en una firma digital?", options: ["El mensaje completo", "El hash del mensaje", "La clave pública", "El certificado"], correct: 1 },
+            { id: 26, question: "ECDSA tiene ventaja sobre RSA porque:", options: ["Es más antiguo", "Claves más cortas con igual seguridad", "Es más lento", "Usa matemáticas simples"], correct: 1 },
+            { id: 27, question: "¿Cuál es un ROL típico en OAuth2?", options: ["Hashing Server", "Authorization Server", "Encryption Server", "Validation Server"], correct: 1 },
+            { id: 28, question: "Las tres partes de un JWT son:", options: ["User, password, token", "Header, payload, signature", "Public, private, shared", "Start, body, end"], correct: 1 },
+            { id: 29, question: "¿Para qué NO se usa una función hash?", options: ["Verificar integridad", "Almacenar contraseñas", "Cifrar datos reversiblemente", "Firma digital"], correct: 2 },
+            { id: 30, question: "Spring Security protege por defecto contra:", options: ["Solo SQL Injection", "CSRF, XSS, Session Fixation", "Solo DDoS", "Ningún ataque"], correct: 1 }
+        ];
+
+        // FLASHCARDS DATA (igual que antes)
         const flashcards = [
             { front: "¿Qué es un HASH?", back: "Función matemática UNIDIRECCIONAL que transforma datos de cualquier tamaño en una cadena de LONGITUD FIJA. Es IRREVERSIBLE." },
             { front: "Diferencia: Hash vs Cifrado", back: "HASH: Unidireccional, no usa clave, longitud fija, verifica integridad\nCIFRADO: Bidireccional, usa clave(s), longitud variable, protege confidencialidad" },
@@ -848,34 +933,62 @@
             { front: "Spring Security: UserDetailsService", back: "Interfaz para cargar datos de usuario\nMétodo principal: loadUserByUsername()\nImplementaciones:\n• InMemoryUserDetailsManager\n• JdbcUserDetailsManager\n• Custom" }
         ];
         
-        let currentCardIndex = 0;
-        
-        function showCard(index) {
-            document.getElementById('card-front').textContent = flashcards[index].front;
-            document.getElementById('card-back').textContent = flashcards[index].back;
-            document.getElementById('current-card').textContent = index + 1;
-            document.getElementById('total-cards').textContent = flashcards.length;
-            document.getElementById('flashcard').classList.remove('flipped');
-        }
-        
-        function flipCard() {
-            document.getElementById('flashcard').classList.toggle('flipped');
-        }
-        
-        function nextCard() {
-            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
-            showCard(currentCardIndex);
-        }
-        
-        function prevCard() {
-            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
-            showCard(currentCardIndex);
-        }
-        
-        // CODE QUESTIONS DATA
+        // CODE QUESTIONS - 10 PREGUNTAS (REORDENADAS)
         const codeQuestions = [
             {
                 id: 1,
+                question: "¿Qué problema tiene este hash de contraseña?",
+                code: `public String hashPassword(String password) {
+    MessageDigest md = MessageDigest.getInstance("MD5");
+    byte[] hash = md.digest(password.getBytes());
+    return Base64.getEncoder().encodeToString(hash);
+}`,
+                options: [
+                    "MD5 está obsoleto y es vulnerable, debería usar bcrypt o Argon2",
+                    "Falta el try-catch",
+                    "Base64 no es adecuado para contraseñas",
+                    "Debería usar SHA-1 en lugar de MD5"
+                ],
+                correct: 0,
+                explanation: "JWT es stateless (no requiere almacenar sesiones en servidor), autocontenido y perfecto para APIs REST."
+            },
+            {
+                id: 2,
+                question: "¿Qué está mal en este cifrado AES?",
+                code: `Cipher cipher = Cipher.getInstance("AES");
+cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+byte[] encrypted = cipher.doFinal(plaintext.getBytes());`,
+                options: [
+                    "Falta especificar el modo y padding (ej: AES/GCM/NoPadding), ECB no es seguro",
+                    "La clave debe ser de 256 bits",
+                    "Falta el IV (Initialization Vector)",
+                    "A y C son correctas"
+                ],
+                correct: 3
+            },
+            {
+                id: 3,
+                question: "¿Cuál es el problema en esta validación de JWT?",
+                code: `public boolean validateToken(String token) {
+    try {
+        Jwts.parser()
+            .setSigningKey(secretKey)
+            .parseClaimsJws(token);
+        return true;
+    } catch (Exception e) {
+        return true; // ¿Esto está bien?
+    }
+}`,
+                options: [
+                    "El catch devuelve true cuando debería devolver false (token inválido)",
+                    "Falta comprobar la fecha de expiración",
+                    "El método debe ser void",
+                    "No se puede usar Exception genérico"
+                ],
+                correct: 0
+            },
+            {
+                id: 4,
                 question: "¿Qué está MAL en esta configuración de Spring Security?",
                 code: `@Configuration
 @EnableWebSecurity
@@ -899,7 +1012,7 @@ public class SecurityConfig {
                 correct: 0
             },
             {
-                id: 2,
+                id: 5,
                 question: "¿Qué error tiene este código de generación de JWT?",
                 code: `public String createToken(String username) {
     Date now = new Date();
@@ -920,71 +1033,100 @@ public class SecurityConfig {
                 correct: 0
             },
             {
-                id: 3,
-                question: "¿Qué problema tiene este hash de contraseña?",
-                code: `public String hashPassword(String password) {
-    MessageDigest md = MessageDigest.getInstance("MD5");
-    byte[] hash = md.digest(password.getBytes());
-    return Base64.getEncoder().encodeToString(hash);
-}`,
+                id: 6,
+                question: "¿Qué falta en este generador de claves RSA?",
+                code: `KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+keyGen.initialize(1024); // ¿Problema aquí?
+KeyPair keyPair = keyGen.generateKeyPair();`,
                 options: [
-                    "MD5 está obsoleto y es vulnerable, debería usar bcrypt o Argon2",
-                    "Falta el try-catch",
-                    "Base64 no es adecuado para contraseñas",
-                    "Debería usar SHA-1 en lugar de MD5"
+                    "No se puede usar RSA para generar claves",
+                    "1024 bits es inseguro, mínimo recomendado 2048 bits",
+                    "Falta el algoritmo de firma",
+                    "Debería ser KeyGenerator en lugar de KeyPairGenerator"
                 ],
-                correct: 0
+                correct: 1
             },
             {
-                id: 4,
-                question: "¿Cuál es el problema en esta validación de JWT?",
-                code: `public boolean validateToken(String token) {
-    try {
-        Jwts.parser()
-            .setSigningKey(secretKey)
-            .parseClaimsJws(token);
-        return true;
-    } catch (Exception e) {
-        return true; // ¿Esto está bien?
+                id: 7,
+                question: "¿Qué problema tiene esta comparación de contraseñas?",
+                code: `public boolean checkPassword(String input, String stored) {
+    return input.equals(stored);
+}`,
+                options: [
+                    "Debería usar == en lugar de equals",
+                    "Las contraseñas no deberían estar en texto plano, debería comparar hashes",
+                    "Falta el try-catch",
+                    "El método debe ser static"
+                ],
+                correct: 1
+            },
+            {
+                id: 8,
+                question: "¿Qué está mal en esta verificación de firma digital?",
+                code: `Signature sig = Signature.getInstance("SHA256withRSA");
+sig.initVerify(privateKey); // ¿Clave correcta?
+sig.update(data);
+boolean isValid = sig.verify(signatureBytes);`,
+                options: [
+                    "Debería usar initSign en lugar de initVerify",
+                    "Debería usar la clave PÚBLICA para verificar, no la privada",
+                    "SHA256withRSA no existe",
+                    "Falta el algoritmo de hash"
+                ],
+                correct: 1
+            },
+            {
+                id: 9,
+                question: "¿Qué falla en este código de almacenamiento de contraseñas?",
+                code: `public void savePassword(String username, String password) {
+    String encrypted = AES.encrypt(password, secretKey);
+    database.save(username, encrypted);
+}`,
+                options: [
+                    "AES no existe como clase",
+                    "Las contraseñas NO deben cifrarse reversiblemente, deben hashearse (bcrypt/Argon2)",
+                    "Falta el IV",
+                    "Debería usar RSA en lugar de AES"
+                ],
+                correct: 1
+            },
+            {
+                id: 10,
+                question: "¿Qué problema tiene este filtro JWT en Spring?",
+                code: `public class JwtFilter extends OncePerRequestFilter {
+    protected void doFilterInternal(HttpServletRequest req, 
+                                    HttpServletResponse res, 
+                                    FilterChain chain) {
+        String token = extractToken(req);
+        if (jwtUtil.isValid(token)) {
+            // ¿Falta algo aquí?
+        }
+        chain.doFilter(req, res);
     }
 }`,
                 options: [
-                    "El catch devuelve true cuando debería devolver false (token inválido)",
-                    "Falta comprobar la fecha de expiración",
-                    "El método debe ser void",
-                    "No se puede usar Exception genérico"
+                    "No se puede extender OncePerRequestFilter",
+                    "Falta establecer la autenticación en SecurityContextHolder",
+                    "El método debe ser public",
+                    "Falta el @Override"
                 ],
-                correct: 0
-            },
-            {
-                id: 5,
-                question: "¿Qué está mal en este cifrado AES?",
-                code: `Cipher cipher = Cipher.getInstance("AES");
-cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-byte[] encrypted = cipher.doFinal(plaintext.getBytes());`,
-                options: [
-                    "Falta especificar el modo y padding (ej: AES/GCM/NoPadding), ECB no es seguro",
-                    "La clave debe ser de 256 bits",
-                    "Falta el IV (Initialization Vector)",
-                    "A y C son correctas"
-                ],
-                correct: 3
+                correct: 1
             }
-        ];
+        ];   
         
-        // PRACTICAL CASES DATA
+        // PRACTICAL CASES - 15 CASOS (REORDENADOS)
         const practicalCases = [
             {
                 id: 1,
-                scenario: "Una empresa necesita cifrar documentos PDF de gran tamaño (varios GB) para almacenarlos en la nube. ¿Qué solución recomiendas?",
+                scenario: "Desarrollas una app IoT para dispositivos con recursos limitados que necesitan firma digital. ¿Qué algoritmo eliges?",
                 options: [
-                    "RSA (criptografía asimétrica)",
-                    "AES-256 en modo GCM (criptografía simétrica)",
-                    "Solo aplicar SHA-256 hash",
-                    "MD5 para mayor velocidad"
+                    "RSA 4096 bits",
+                    "ECDSA 256 bits",
+                    "DSA 2048 bits",
+                    "SHA-512 hash"
                 ],
                 correct: 1,
-                explanation: "AES-256 es ideal para archivos grandes por su velocidad. RSA sería demasiado lento. Hash no cifra, solo verifica integridad."
+                explanation: "ECDSA ofrece la misma seguridad que RSA pero con claves más cortas (256 vs 3072 bits), ideal para dispositivos limitados."
             },
             {
                 id: 2,
@@ -1000,18 +1142,6 @@ byte[] encrypted = cipher.doFinal(plaintext.getBytes());`,
             },
             {
                 id: 3,
-                scenario: "Estás desarrollando una API REST que debe funcionar sin sesiones del lado del servidor. Los usuarios necesitan autenticarse. ¿Qué implementas?",
-                options: [
-                    "Cookies de sesión tradicionales",
-                    "HTTP Basic Authentication",
-                    "JWT (JSON Web Tokens)",
-                    "Guardar contraseñas en localStorage"
-                ],
-                correct: 2,
-                explanation: "JWT es stateless (no requiere almacenar sesiones en servidor), autocontenido y perfecto para APIs REST."
-            },
-            {
-                id: 4,
                 scenario: "Una app necesita permitir login con Google, Facebook y GitHub sin manejar las contraseñas. ¿Qué protocolo usas?",
                 options: [
                     "JWT directo",
@@ -1023,19 +1153,7 @@ byte[] encrypted = cipher.doFinal(plaintext.getBytes());`,
                 explanation: "OAuth2 es el estándar para autorización delegada, permitiendo login social sin manejar contraseñas."
             },
             {
-                id: 5,
-                scenario: "Necesitas almacenar contraseñas en la base de datos de forma segura. ¿Qué método usas?",
-                options: [
-                    "Texto plano (sin cifrar)",
-                    "SHA-256 directo",
-                    "AES-256 cifrado reversible",
-                    "bcrypt o Argon2 con salt"
-                ],
-                correct: 3,
-                explanation: "bcrypt/Argon2 están diseñados específicamente para contraseñas: lentos a propósito, con salt automático y factor de trabajo ajustable."
-            },
-            {
-                id: 6,
+                id: 4,
                 scenario: "Dos servidores necesitan comunicarse de forma segura en internet, enviando datos sensibles constantemente. ¿Qué esquema de cifrado usas?",
                 options: [
                     "Solo RSA para todo",
@@ -1047,19 +1165,19 @@ byte[] encrypted = cipher.doFinal(plaintext.getBytes());`,
                 explanation: "Cifrado híbrido (como en TLS/HTTPS): asimétrico para intercambio seguro de clave, simétrico para velocidad en los datos."
             },
             {
-                id: 7,
-                scenario: "Desarrollas una app IoT para dispositivos con recursos limitados que necesitan firma digital. ¿Qué algoritmo eliges?",
+                id: 5,
+                scenario: "Una empresa necesita cifrar documentos PDF de gran tamaño (varios GB) para almacenarlos en la nube. ¿Qué solución recomiendas?",
                 options: [
-                    "RSA 4096 bits",
-                    "ECDSA 256 bits",
-                    "DSA 2048 bits",
-                    "SHA-512 hash"
+                    "RSA (criptografía asimétrica)",
+                    "AES-256 en modo GCM (criptografía simétrica)",
+                    "Solo aplicar SHA-256 hash",
+                    "MD5 para mayor velocidad"
                 ],
                 correct: 1,
-                explanation: "ECDSA ofrece la misma seguridad que RSA pero con claves más cortas (256 vs 3072 bits), ideal para dispositivos limitados."
+                explanation: "AES-256 es ideal para archivos grandes por su velocidad. RSA sería demasiado lento. Hash no cifra, solo verifica integridad."
             },
             {
-                id: 8,
+                id: 6,
                 scenario: "Un usuario descarga un archivo ISO de Linux. ¿Cómo puede verificar que no ha sido alterado?",
                 options: [
                     "Comparar el hash SHA-256 del archivo con el publicado oficialmente",
@@ -1069,53 +1187,244 @@ byte[] encrypted = cipher.doFinal(plaintext.getBytes());`,
                 ],
                 correct: 0,
                 explanation: "El hash (huella digital) permite verificar integridad: si el archivo cambia aunque sea un bit, el hash será completamente diferente."
+            },
+            {
+                id: 7,
+                scenario: "Estás desarrollando una API REST que debe funcionar sin sesiones del lado del servidor. Los usuarios necesitan autenticarse. ¿Qué implementas?",
+                options: [
+                    "Cookies de sesión tradicionales",
+                    "HTTP Basic Authentication",
+                    "JWT (JSON Web Tokens)",
+                    "Guardar contraseñas en localStorage"
+                ],
+                correct:2,
+                explanation: "JWT es ideal para APIs REST sin estado (stateless), ya que no requiere sesiones en el servidor y es autocontenido."
+            },
+            {
+                id: 8,
+                scenario: "Una aplicación web necesita protegerse contra ataques CSRF. ¿Qué framework ofrece esta protección por defecto?",
+                options: [         
+                    "Spring Security",
+                    "jQuery",
+                    "Bootstrap",
+                    "React"
+                ],
+                correct: 0,
+                explanation: "Spring Security incluye protección contra CSRF por defecto, ayudando a prevenir este tipo de ataques."
+            },
+            {
+                id: 9,
+                scenario: "Quieres almacenar contraseñas de usuarios en tu base de datos de forma segura. ¿Qué método es el más adecuado?",
+                options: [
+                    "Cifrado AES con clave secreta",
+                    "Hash con bcrypt o Argon2",
+                    "Hash con MD5",
+                    "Almacenarlas en texto plano"
+                ],
+                correct: 1,
+                explanation: "bcrypt y Argon2 son algoritmos de hash diseñados para almacenar contraseñas de forma segura, incluyendo sal y siendo lentos para proteger contra ataques de fuerza bruta."
+            },
+            {
+                id: 10,
+                scenario: "Un desarrollador usa el modo ECB para cifrar datos con AES en su aplicación. ¿Cuál es el problema con esto?",
+                options: [
+                    "ECB es inseguro porque no usa IV y puede revelar patrones en los datos",
+                    "ECB es demasiado lento",
+                    "ECB requiere claves de 512 bits",
+                    "No hay problema, es el modo recomendado"
+                ],
+                correct: 0,
+                explanation: "El modo ECB no es seguro porque no utiliza un vector de inicialización (IV) y puede revelar patrones en los datos cifrados, comprometiendo la confidencialidad."
+            },
+            {
+                id: 11,
+                scenario: "Necesitas generar un par de claves para cifrado asimétrico. ¿Qué longitud de clave es la mínima recomendada para RSA en 2024?",
+                options: [
+                    "1024 bits",
+                    "2048 bits",
+                    "4096 bits",
+                    "512 bits"
+                ],
+                correct: 1,
+                explanation: "La longitud mínima recomendada para claves RSA en 2024 es de 2048 bits para garantizar seguridad adecuada."
+            },
+            {
+                id: 12,
+                scenario: "Un sistema utiliza JWT para autenticación. ¿Qué parte del JWT contiene la información del usuario?",
+                options: [
+                    "Header",
+                    "Payload",
+                    "Signature",
+                    "Token ID"
+                ],
+                correct: 1,
+                explanation: "El Payload del JWT contiene los datos del usuario (claims), mientras que el Header especifica el tipo y algoritmo, y la Signature verifica la integridad."
+            },
+            {
+                id: 13,
+                scenario: "Estás configurando Spring Security y quieres permitir acceso libre a la ruta /public/** y restringir /admin/** solo a usuarios con rol ADMIN. ¿Cuál es la configuración correcta?",
+                options: [
+                    "requestMatchers('/admin/**').permitAll(); requestMatchers('/public/**').hasRole('ADMIN');",
+                    "requestMatchers('/public/**').permitAll(); requestMatchers('/admin/**').hasRole('ADMIN');",
+                    "requestMatchers('/admin/**').authenticated(); requestMatchers('/public/**').authenticated();",
+                    "requestMatchers('/public/**').denyAll(); requestMatchers('/admin/**').permitAll();"
+                ],
+                correct: 1,
+                explanation: "La configuración correcta es permitir todo en /public/** y restringir /admin/** a usuarios con rol ADMIN."
+            },
+            {
+                id: 14,
+                scenario: "Quieres proteger una API REST sin estado. ¿Cuál es la mejor opción para manejar la autenticación de usuarios?",
+                options: [
+                    "Usar sesiones en el servidor",
+                    "Usar JWT (JSON Web Tokens)",
+                    "Usar cookies de sesión",
+                    "Almacenar contraseñas en localStorage"
+                ],
+                correct: 1,
+                explanation: "JWT es ideal para APIs REST sin estado (stateless), ya que no requiere sesiones en el servidor y es autocontenido."
+            },
+            {
+                id: 15,
+                scenario: "Un desarrollador está usando MD5 para hashear contraseñas. ¿Cuál es el problema principal con este enfoque?",
+                options: [
+                    "MD5 es demasiado lento",
+                    "MD5 está obsoleto y es vulnerable a colisiones",
+                    "MD5 requiere claves largas",
+                    "MD5 no produce hashes de longitud fija"
+                ],
+                correct: 1,
+                explanation: "MD5 está obsoleto y es vulnerable a ataques de colisión, por lo que no es adecuado para hashear contraseñas. Se recomiendan algoritmos más seguros como bcrypt o Argon2."
             }
         ];
         
-        // Initialize
-        showCard(0);
+        let currentCardIndex = 0;
+        let testAnswers = {};
         
-        // Render Code Questions
-        const codeContainer = document.getElementById('code-questions');
-        codeQuestions.forEach((q, index) => {
-            const questionDiv = document.createElement('div');
-            questionDiv.className = 'question';
-            questionDiv.innerHTML = `
-                <h3>Pregunta ${index + 1}: ${q.question}</h3>
-                <div class="code-block">
-                    <pre><code>${q.code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
-                </div>
-                <div class="options" id="code-options-${q.id}">
-                    ${q.options.map((opt, i) => `
-                        <div class="option" onclick="selectCodeOption(${q.id}, ${i}, ${q.correct})">
-                            ${opt}
-                        </div>
-                    `).join('')}
-                </div>
-                <div id="code-explanation-${q.id}" style="display: none;"></div>
-            `;
-            codeContainer.appendChild(questionDiv);
-        });
+        // FLASHCARD FUNCTIONS
+        function showCard(index) {
+            document.getElementById('card-front').textContent = flashcards[index].front;
+            document.getElementById('card-back').textContent = flashcards[index].back;
+            document.getElementById('current-card').textContent = index + 1;
+            document.getElementById('total-cards').textContent = flashcards.length;
+            document.getElementById('flashcard').classList.remove('flipped');
+        }
         
-        // Render Practical Cases
-        const practicalContainer = document.getElementById('practical-cases');
-        practicalCases.forEach((c, index) => {
-            const caseDiv = document.createElement('div');
-            caseDiv.className = 'question';
-            caseDiv.innerHTML = `
-                <h3>Caso ${index + 1}</h3>
-                <p style="margin-bottom: 15px;">${c.scenario}</p>
-                <div class="options" id="practical-options-${c.id}">
-                    ${c.options.map((opt, i) => `
-                        <div class="option" onclick="selectPracticalOption(${c.id}, ${i}, ${c.correct}, '${c.explanation.replace(/'/g, "\\'")}')">
-                            ${opt}
-                        </div>
-                    `).join('')}
-                </div>
-                <div id="practical-explanation-${c.id}" style="display: none;"></div>
+        function flipCard() {
+            document.getElementById('flashcard').classList.toggle('flipped');
+        }
+        
+        function nextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            showCard(currentCardIndex);
+        }
+        
+        function prevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            showCard(currentCardIndex);
+        }
+        
+        // TEST GENERAL FUNCTIONS
+        function renderTestQuestions() {
+            const container = document.getElementById('test-questions');
+            testQuestions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.innerHTML = `
+                    <h3>Pregunta ${index + 1}</h3>
+                    <p style="margin-bottom: 15px; font-weight: 500;">${q.question}</p>
+                    <div class="options" id="test-options-${q.id}">
+                        ${q.options.map((opt, i) => `
+                            <div class="option" onclick="selectTestOption(${q.id}, ${i})">
+                                ${opt}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(questionDiv);
+            });
+        }
+        
+        function selectTestOption(questionId, optionIndex) {
+            testAnswers[questionId] = optionIndex;
+            const optionsDiv = document.getElementById(`test-options-${questionId}`);
+            const options = optionsDiv.querySelectorAll('.option');
+            options.forEach((opt, i) => {
+                opt.classList.remove('selected');
+                if (i === optionIndex) {
+                    opt.classList.add('selected');
+                }
+            });
+        }
+        
+        function submitTest() {
+            if (Object.keys(testAnswers).length < testQuestions.length) {
+                alert(`Has respondido ${Object.keys(testAnswers).length} de ${testQuestions.length} preguntas. Por favor, responde todas antes de enviar.`);
+                return;
+            }
+            
+            let correct = 0;
+            testQuestions.forEach(q => {
+                const optionsDiv = document.getElementById(`test-options-${q.id}`);
+                const options = optionsDiv.querySelectorAll('.option');
+                const userAnswer = testAnswers[q.id];
+                
+                options.forEach((opt, i) => {
+                    opt.onclick = null;
+                    if (i === q.correct) {
+                        opt.classList.add('correct');
+                    } else if (i === userAnswer && i !== q.correct) {
+                        opt.classList.add('incorrect');
+                    }
+                });
+                
+                if (userAnswer === q.correct) {
+                    correct++;
+                }
+            });
+            
+            const percentage = ((correct / testQuestions.length) * 100).toFixed(1);
+            const resultDiv = document.getElementById('test-result');
+            const passed = percentage >= 50;
+            
+            resultDiv.className = passed ? 'test-result' : 'test-result fail';
+            resultDiv.innerHTML = `
+                <h2>${passed ? '¡Aprobado! 🎉' : 'Necesitas repasar 📚'}</h2>
+                <p style="font-size: 1.5em; margin: 10px 0;">${correct} / ${testQuestions.length} correctas</p>
+                <p style="font-size: 1.2em;">${percentage}%</p>
+                <p style="margin-top: 15px;">
+                    ${percentage >= 90 ? 'Excelente dominio del temario' :
+                      percentage >= 70 ? 'Buen conocimiento, repasa algunos puntos' :
+                      percentage >= 50 ? 'Aprobado, pero estudia más los temas fallados' :
+                      'Repasa el temario completo y vuelve a intentarlo'}
+                </p>
             `;
-            practicalContainer.appendChild(caseDiv);
-        });
+            resultDiv.style.display = 'block';
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // CODE QUESTIONS FUNCTIONS
+        function renderCodeQuestions() {
+            const container = document.getElementById('code-questions');
+            codeQuestions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.innerHTML = `
+                    <h3>Pregunta ${index + 1}: ${q.question}</h3>
+                    <div class="code-block"><pre><code>${q.code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre></div>
+                    <div class="options" id="code-options-${q.id}">
+                        ${q.options.map((opt, i) => `
+                            <div class="option" onclick="selectCodeOption(${q.id}, ${i}, ${q.correct})">
+                                ${opt}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div id="code-explanation-${q.id}" style="display: none;"></div>
+                `;
+                container.appendChild(questionDiv);
+            });
+        }
         
         function selectCodeOption(questionId, selected, correct) {
             const optionsDiv = document.getElementById(`code-options-${questionId}`);
@@ -1140,6 +1449,28 @@ byte[] encrypted = cipher.doFinal(plaintext.getBytes());`,
                 explanationDiv.innerHTML = `<strong>❌ Incorrecto</strong><br><br><strong>Respuesta correcta:</strong> ${question.options[correct]}`;
             }
             explanationDiv.style.display = 'block';
+        }
+        
+        // PRACTICAL CASES FUNCTIONS
+        function renderPracticalCases() {
+            const container = document.getElementById('practical-cases');
+            practicalCases.forEach((c, index) => {
+                const caseDiv = document.createElement('div');
+                caseDiv.className = 'question';
+                caseDiv.innerHTML = `
+                    <h3>Caso ${index + 1}</h3>
+                    <p style="margin-bottom: 15px;">${c.scenario}</p>
+                    <div class="options" id="practical-options-${c.id}">
+                        ${c.options.map((opt, i) => `
+                            <div class="option" onclick="selectPracticalOption(${c.id}, ${i}, ${c.correct}, \`${c.explanation.replace(/`/g, '\\`')}\`)">
+                                ${opt}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div id="practical-explanation-${c.id}" style="display: none;"></div>
+                `;
+                container.appendChild(caseDiv);
+            });
         }
         
         function selectPracticalOption(caseId, selected, correct, explanation) {
@@ -1167,20 +1498,21 @@ byte[] encrypted = cipher.doFinal(plaintext.getBytes());`,
         }
         
         function showTab(tabName) {
-            // Hide all tabs
             const tabs = document.querySelectorAll('.tab-content');
             tabs.forEach(tab => tab.classList.remove('active'));
             
-            // Remove active from all buttons
             const buttons = document.querySelectorAll('.tab-button');
             buttons.forEach(btn => btn.classList.remove('active'));
             
-            // Show selected tab
             document.getElementById(tabName).classList.add('active');
-            
-            // Highlight active button
             event.target.classList.add('active');
         }
+        
+        // INITIALIZE
+        showCard(0);
+        renderTestQuestions();
+        renderCodeQuestions();
+        renderPracticalCases();
     </script>
 </body>
 </html>
