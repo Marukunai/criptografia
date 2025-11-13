@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pack de Estudio - Sockets y Servicios de Red (API REST)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            /* Paleta: Rojo/Rosa */
+            background: linear-gradient(135deg, #f05053 0%, #e10e5b 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .header h1 {
+            background: linear-gradient(135deg, #f05053 0%, #e10e5b 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .tabs {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .tab-button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f3f4f6;
+            color: #374151;
+        }
+        
+        .tab-button:hover {
+            background: #e5e7eb;
+        }
+        
+        .tab-button.active {
+            background: linear-gradient(135deg, #f05053 0%, #e10e5b 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(240, 80, 83, 0.4);
+        }
+        
+        .content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            min-height: 500px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* FLASHCARDS */
+        .flashcard-container {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .flashcard-counter {
+            color: #6b7280;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        
+        .flashcard {
+            perspective: 1000px;
+            height: 350px;
+            margin-bottom: 30px;
+            cursor: pointer;
+        }
+        
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        
+        .flashcard.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+        
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .flashcard-front {
+            background: linear-gradient(135deg, #f05053 0%, #e10e5b 100%);
+            color: white;
+        }
+        
+        .flashcard-back {
+            /* Color de contraste */
+            background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+            color: white;
+            transform: rotateY(180deg);
+        }
+        
+        .flashcard-text {
+            font-size: 1.5em;
+            font-weight: 600;
+            line-height: 1.5;
+            white-space: pre-line;
+        }
+        
+        .flashcard-hint {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-top: 15px;
+        }
+        
+        .flashcard-navigation {
+            display: flex;
+            justify-content: space-between;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .nav-button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #6b7280;
+            color: white;
+        }
+        
+        .nav-button:hover {
+            background: #4b5563;
+            transform: translateY(-2px);
+        }
+        
+        /* TABLES */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        th {
+            background: #f3f4f6;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background: #fafafa;
+        }
+        
+        .status-success {
+            color: #059669;
+            font-weight: 600;
+        }
+        
+        .status-error {
+            color: #dc2626;
+            font-weight: 600;
+        }
+        
+        .status-info {
+            color: #3b82f6;
+            font-weight: 600;
+        }
+        
+        .status-warning {
+            color: #f59e0b;
+            font-weight: 600;
+        }
+        
+        /* BOXES */
+        .info-box {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .warning-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .success-box {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .danger-box {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        /* GRID */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .card {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .card h3 {
+            color: #1f2937;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        /* CODE */
+        .code-block {
+            background: #1f2937;
+            color: #e1e1e1;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre; /* Asegura que el formato de código se mantenga */
+        }
+
+        .code-block .keyword {
+            color: #f05053; /* Red keyword */
+        }
+        .code-block .type {
+            color: #00c6ff; /* Blue type */
+        }
+        .code-block .comment {
+            color: #6b7280; /* Gray comment */
+            font-style: italic;
+        }
+        
+        /* QUESTIONS */
+        .question {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .question h3 {
+            color: #1f2937;
+            margin-bottom: 15px;
+        }
+        
+        .options {
+            margin-top: 15px;
+        }
+        
+        .option {
+            background: white;
+            border: 2px solid #e5e7eb;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .option:hover {
+            border-color: #f05053;
+            background: #fefefe;
+        }
+        
+        .option.selected {
+            border-color: #f05053;
+            background: #ffebeb;
+        }
+        
+        .option.correct {
+            border-color: #10b981;
+            background: #d1fae5;
+        }
+        
+        .option.incorrect {
+            border-color: #ef4444;
+            background: #fee2e2;
+        }
+        
+        .explanation {
+            margin-top: 15px;
+            padding: 15px;
+            background: #fef3c7;
+            border-radius: 8px;
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .footer {
+            background: linear-gradient(135deg, #f05053 0%, #e10e5b 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .footer h3 {
+            margin-bottom: 15px;
+        }
+        
+        .footer ul {
+            list-style: none;
+        }
+        
+        .footer li {
+            padding: 5px 0;
+        }
+
+        .test-result {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .test-result.fail {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .diagram {
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🌐 Pack de Estudio - Sockets y Servicios de Red</h1>
+            <p style="color: #6b7280;">UF3: Programación en Red con Sockets (TCP/UDP) y Desarrollo de API REST con Spring Boot.</p>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab-button active" onclick="showTab('theory', this)">📚 Teoría</button>
+            <button class="tab-button" onclick="showTab('schemes', this)">💡 Esquemas</button>
+            <button class="tab-button" onclick="showTab('flashcards', this)">🧠 Flashcards</button>
+            <button class="tab-button" onclick="showTab('test', this)">📝 Test General (20)</button>
+            <button class="tab-button" onclick="showTab('code', this)">💻 Preg. Código (10)</button>
+            <button class="tab-button" onclick="showTab('practical', this)">💡 Casos Prácticos (10)</button>
+        </nav>
+
+        <main class="content">
+
+            <div id="theory" class="tab-content active">
+                <h2 style="color: #1f2937; margin-bottom: 20px;">1. Programación con Sockets (TCP/UDP)</h2>
+
+                <div class="grid">
+                    <div class="card" style="border-left: 4px solid #f05053;">
+                        <h3>TCP (Protocolo de Control de Transmisión)</h3>
+                        <ul style="list-style: none; line-height: 1.8;">
+                            <li>✅ <b>Orientado a Conexión</b> (Requiere Handshake)</li>
+                            <li>✅ <b>Fiable</b> (Garantiza entrega y orden)</li>
+                            <li>❌ <b>Más Lento</b> (Mayor sobrecarga)</li>
+                            <li><b>Clases clave:</b> <code>ServerSocket</code> y <code>Socket</code></li>
+                        </ul>
+                    </div>
+                    <div class="card" style="border-left: 4px solid #0072ff;">
+                        <h3>UDP (Protocolo de Datagramas de Usuario)</h3>
+                        <ul style="list-style: none; line-height: 1.8;">
+                            <li>✅ <b>Sin Conexión</b> (No hay Handshake)</li>
+                            <li>❌ <b>No Fiable</b> (Sin garantía de entrega)</li>
+                            <li>✅ <b>Más Rápido</b> (Baja sobrecarga)</li>
+                            <li><b>Clases clave:</b> <code>DatagramSocket</code> y <code>DatagramPacket</code></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <h3>El método <code>accept()</code> en <code>ServerSocket</code></h3>
+                    <p>Es un método <b>bloqueante</b>. El hilo de ejecución queda detenido hasta que un cliente se conecta al puerto del servidor.</p>
+                </div>
+                
+                <h3 style="color: #1f2937; margin: 30px 0 15px;">Transferencia de Objetos (Serialización)</h3>
+                <p>Para enviar objetos complejos a través de un <code>Socket</code>, la clase del objeto debe implementar la interfaz <b><code>Serializable</code></b>.</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Flujo</th>
+                            <th>Lado</th>
+                            <th>Clase Java</th>
+                            <th>Método Clave</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><b>Envío</b> (Serializar)</td>
+                            <td>Cliente</td>
+                            <td><code>ObjectOutputStream</code></td>
+                            <td class="status-success"><code>oos.writeObject(objeto)</code></td>
+                        </tr>
+                        <tr>
+                            <td><b>Recepción</b> (Deserializar)</td>
+                            <td>Servidor</td>
+                            <td><code>ObjectInputStream</code></td>
+                            <td class="status-info"><code>(MiObjeto) ois.readObject()</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h2 style="color: #1f2937; margin: 40px 0 20px;">2. API REST y Spring Boot</h2>
+
+                <div class="success-box">
+                    <h3>Concepto Clave: API REST</h3>
+                    <p>Una API REST (Representational State Transfer) se basa en el protocolo <b>HTTP</b>, utiliza recursos (<b>Endpoints</b>) y es <b>Stateless</b> (sin estado).</p>
+                </div>
+
+                <h3 style="color: #1f2937; margin: 30px 0 15px;">Verbos HTTP (CRUD)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Verbo HTTP</th>
+                            <th>Operación CRUD</th>
+                            <th>Uso Típico</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="status-success"><b>GET</b></td>
+                            <td>Read (Lectura)</td>
+                            <td>Obtener recursos (<code>/productos</code>, <code>/productos/1</code>)</td>
+                        </tr>
+                        <tr>
+                            <td class="status-info"><b>POST</b></td>
+                            <td>Create (Creación)</td>
+                            <td>Crear un nuevo recurso. Envía datos en el <b>Body</b>.</td>
+                        </tr>
+                        <tr>
+                            <td class="status-warning"><b>PUT</b></td>
+                            <td>Update (Actualización total)</td>
+                            <td>Reemplazar un recurso existente (envío completo).</td>
+                        </tr>
+                        <tr>
+                            <td class="status-error"><b>DELETE</b></td>
+                            <td>Delete (Borrado)</td>
+                            <td>Eliminar un recurso.</td>
+                        </tr>
+                        <tr>
+                            <td><b>PATCH</b></td>
+                            <td>Update (Actualización parcial)</td>
+                            <td>Modificar campos específicos de un recurso.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3 style="color: #1f2937; margin: 30px 0 15px;">Mapeo de Peticiones en Controller</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Anotación</th>
+                            <th>Función</th>
+                            <th>Ejemplo de Uso</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>@GetMapping</code></td>
+                            <td>Mapea peticiones GET.</td>
+                            <td class="status-success"><code>@GetMapping("/productos")</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>@PathVariable</code></td>
+                            <td>Obtiene valores de la <b>ruta</b> (ej: <code>/productos/1</code>).</td>
+                            <td class="status-info"><code>@GetMapping("/{id}")</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>@RequestParam</code></td>
+                            <td>Obtiene valores de la <b>query</b> (ej: <code>/prod?id=1</code>).</td>
+                            <td class="status-warning"><code>@GetMapping</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>@RequestBody</code></td>
+                            <td>Inyecta el <b>cuerpo</b> (Body/JSON) de la petición.</td>
+                            <td class="status-error"><code>@PostMapping</code> o <code>@PutMapping</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="schemes" class="tab-content">
+                <h2 style="color: #1f2937; margin-bottom: 20px;">Esquemas Visuales Clave</h2>
+                
+                <div class="card" style="background: #f0f8ff;">
+                    <h3>Diagrama 1: Flujo de Petición en API REST (Spring Boot)</h3>
+                    <div class="diagram" style="background: #e6f7ff; border: 1px solid #b3e0ff;">
+<pre style="margin: 0;">
+<span class="keyword">CLIENTE</span> (Postman / Web)
+       | 🔄 <span style="color: #e10e5b;">HTTP GET /api/users/1</span>
+       V
+   ┌──────────────────────────────────┐
+   │ <b>Controller</b> (<span class="type">@RestController</span>)     │
+   │ 1. Mapea: @GetMapping("/{id}")   │
+   │ 2. Extrae: @PathVariable Long id │
+   │ 3. Llama a Service               │
+   └──────────────────────────────────┘
+           |
+           V
+   ┌─────────────────────────────────┐
+   │ <b>Service</b> (<span class="type">@Service</span>)              │
+   │ 4. Lógica de Negocio (Validar)  │
+   │ 5. Llama a Repository           │
+   └─────────────────────────────────┘
+           |
+           V
+   ┌─────────────────────────────────┐
+   │ <b>Repository</b> (<span class="type">@Repository</span>)        │
+   │ 6. Acceso a BD (SELECT * ...)   │
+   │ 7. Devuelve Entidad             │
+   └─────────────────────────────────┘
+           | 
+           | ⬆️ <span style="color: #10b981;">Devuelve Respuesta (200 OK + JSON)</span>
+           V
+<span class="keyword">CLIENTE</span>
+</pre>
+                    </div>
+                </div>
+                
+                <div class="card" style="background: #fff8f0;">
+                    <h3>Diagrama 2: Three-Way Handshake de TCP (Conexión)</h3>
+                    <div class="diagram" style="background: #fff0e6; border: 1px solid #ffccb3;">
+<pre style="margin: 0;">
+<span class="type">Servidor</span> (<span class="type">ServerSocket</span>)              <span class="type">Cliente</span> (<span class="type">Socket</span>)
+     
+        <-- (2) SYN + ACK <------------------ (1) SYN
+        <------------------ (3) ACK
+        
+<span style="color: #10b981; font-weight: bold;">-- CONEXIÓN ESTABLECIDA (Ready for I/O) --</span>
+</pre>
+                    <p style="margin-top: 10px; color: #f59e0b; font-weight: bold;">⚠️ Método `accept()` del servidor bloqueado en (2).</p>
+                </div>
+                </div>
+
+            </div>
+
+            <div id="flashcards" class="tab-content">
+                <div class="flashcard-container">
+                    <div class="flashcard-counter">Tarjeta <span id="current-card">1</span> de <span id="total-cards">0</span></div>
+                    <div class="flashcard" id="flashcard" onclick="flipCard()">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">
+                                <p class="flashcard-text" id="card-front"></p>
+                            </div>
+                            <div class="flashcard-back">
+                                <p class="flashcard-text" id="card-back"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flashcard-navigation">
+                        <button class="nav-button" onclick="prevCard()">← Anterior</button>
+                        <button class="nav-button" onclick="nextCard()">Siguiente →</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="test" class="tab-content">
+                <div class="info-box">
+                    <b>Instrucciones:</b> Responde a las 20 preguntas y haz clic en "Ver Resultado" al finalizar.
+                </div>
+                <div id="test-questions">
+                    </div>
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="tab-button active" style="margin-right: 15px;" onclick="submitTest()">Ver Resultado</button>
+                    <button class="tab-button" onclick="renderTestQuestions(); testAnswers = {}; document.getElementById('test-result').style.display='none'; window.scrollTo(0, 0);">Reiniciar Test</button>
+                </div>
+                <div id="test-result" class="test-result" style="display: none;">
+                    </div>
+            </div>
+
+            <div id="code" class="tab-content">
+                <div class="success-box">
+                    <b>Instrucciones:</b> Analiza el snippet de código y elige la opción que resuelve el error o completa la funcionalidad.
+                </div>
+                <div id="code-questions">
+                    </div>
+            </div>
+
+            <div id="practical" class="tab-content">
+                <div class="success-box">
+                    <b>Instrucciones:</b> Lee cada caso práctico y elige la mejor solución. Después de responder verás la explicación.
+                </div>
+                <div id="practical-cases">
+                    </div>
+            </div>
+
+        </main>
+
+        <footer class="footer">
+            <h3>🚀 Estrategia de Estudio:</h3>
+            <ul>
+                <li>✓ Domina la diferencia entre TCP y UDP (Fiabilidad vs. Velocidad).</li>
+                <li>✓ Entiende el flujo de Serialización (<code>Serializable</code>, <code>ObjectOutputStream</code>).</li>
+                <li>✓ Memoriza el mapeo de verbos HTTP con CRUD (GET, POST, PUT, DELETE, PATCH).</li>
+                <li>✓ Conoce las capas de Spring Boot: Controller (endpoints) → Service (negocio) → Repository (datos).</li>
+            </ul>
+        </footer>
+
+    </div>
+
+    <script>
+        let currentCardIndex = 0;
+        let testAnswers = {};
+        let codeAnswers = {};
+        let practicalAnswers = {};
+
+        // ------------------ DATOS AMPLIADOS ------------------
+
+        const flashcards = [
+            { front: "Diferencia clave entre TCP y UDP.", back: "TCP: <b>Orientado a conexión</b>, fiable, lento.\nUDP: <b>Sin conexión</b>, no fiable, más rápido." },
+            { front: "¿Qué método de ServerSocket es bloqueante hasta recibir una conexión?", back: "<code>accept()</code>" },
+            { front: "Interfaz que un objeto debe implementar para ser enviado por red en Java.", back: "<code>Serializable</code>" },
+            { front: "Clase Java para recibir objetos serializados y el método clave.", back: "<code>ObjectInputStream</code> y el método <code>readObject()</code> (necesita cast)." },
+            { front: "Concepto clave de REST que implica que el servidor no guarda información de la sesión entre peticiones.", back: "<b>Stateless</b> (Sin estado)" },
+            { front: "Capa de Spring Boot encargada de la lógica de negocio y validaciones.", back: "<b>Service</b> (<code>@Service</code>)" },
+            { front: "Mapeo de Spring Boot para obtener el valor de la ruta (ej: /user/5</).", back: "<code>@PathVariable</code>" },
+            { front: "Mapeo de Spring Boot para obtener el cuerpo de la petición (JSON/XML).", back: "<code>@RequestBody</code> (en <code>@PostMapping</code> o <code>@PutMapping</code>)" },
+            { front: "Código HTTP para una petición GET correcta.", back: "<b>200 OK</b>" },
+            { front: "Verbo HTTP para crear un nuevo recurso.", back: "<b>POST</b>" }
+        ];
+
+        const testQuestions = [
+            { id: 1, question: "¿Qué protocolo se utiliza con <code>ServerSocket</code> y <code>Socket</code>?", options: ["UDP", "ICMP", "TCP/IP", "HTTP"], correct: 2, explanation: "Las clases <code>Socket</code> y <code>ServerSocket</code> en Java implementan el protocolo <b>TCP</b> (Orientado a Conexión) en la capa de transporte." },
+            { id: 2, question: "¿Qué hace el método <code>accept()</code> en <code>ServerSocket</code>?", options: ["Abre el puerto", "Envía datos", "Espera de forma bloqueante la conexión", "Cierra el puerto"], correct: 2, explanation: "El método <code>accept()</code> es un método de <b>bloqueo</b> (bloqueante) que detiene el hilo hasta que un cliente se conecta y devuelve un nuevo <code>Socket</code> para la comunicación." },
+            { id: 3, question: "La característica <b>Stateless</b> (sin estado) es propia de:", options: ["Sockets TCP", "API REST", "Sockets UDP", "RMI"], correct: 1, explanation: "El principio <b>REST</b> (Representational State Transfer) exige que las peticiones sean sin estado (Stateless), lo que significa que el servidor no debe depender de información de sesiones anteriores." },
+            { id: 4, question: "¿Qué clase en Java se usa para representar un paquete de datos UDP?", options: ["Socket", "ServerSocket", "DatagramPacket", "DatagramSocket"], correct: 2, explanation: "El objeto <b><code>DatagramPacket</code></b> se usa para envolver la información, la IP y el puerto para su envío/recepción con <code>DatagramSocket</code>." },
+            { id: 5, question: "¿Qué anotación de Spring Boot indica que una clase es un componente para acceder a la base de datos?", options: ["@Service", "@Controller", "@Repository", "@Entity"], correct: 2, explanation: "<b><code>@Repository</code></b> se utiliza en la capa de persistencia para indicar el acceso a datos. <code>@Entity</code> marca la clase como una tabla de la DB." },
+            { id: 6, question: "¿Qué método HTTP se utiliza típicamente para crear un nuevo recurso?", options: ["GET", "POST", "PUT", "DELETE"], correct: 1, explanation: "<b>POST</b> se utiliza para enviar datos y crear un nuevo recurso. <b>PUT</b> se usa para actualizar (reemplazar) uno existente." },
+            { id: 7, question: "Un error <b>500 Internal Server Error</b> indica:", options: ["Recurso no encontrado", "Fallo interno del servidor", "Petición inválida", "Éxito"], correct: 1, explanation: "Los códigos 5xx indican errores del servidor. El <b>500</b> es un error genérico cuando el servidor falla al procesar la petición (ej: fallo de DB, excepción no manejada)." },
+            { id: 8, question: "¿Cuál es el código HTTP que se debe retornar para indicar un error del cliente por datos mal formados?", options: ["200 OK", "404 Not Found", "400 Bad Request", "503 Service Unavailable"], correct: 2, explanation: "El código <b>400 Bad Request</b> indica que la sintaxis de la petición o los datos (JSON/parámetros) son incorrectos o inválidos." },
+            { id: 9, question: "El protocolo <b>TCP</b> utiliza un mecanismo de tres pasos para establecer la conexión, conocido como:", options: ["Load Balancing", "Three-Way Handshake", "Routing", "Forwarding"], correct: 1, explanation: "El <b>Three-Way Handshake</b> (SYN, SYN-ACK, ACK) es el proceso fundamental de TCP para establecer una conexión fiable." },
+            { id: 10, question: "¿Qué anotación de Spring Boot se usa para definir una clase que maneja peticiones HTTP y devuelve objetos Java (que se serializan a JSON/XML)?", options: ["@Controller", "@Service", "@Component", "@RestController"], correct: 3, explanation: "<b><code>@RestController</code></b> es la combinación de <code>@Controller</code> y <code>@ResponseBody</code>, indicando que la clase es un controlador y que los datos devueltos son el cuerpo de la respuesta HTTP." },
+            { id: 11, question: "El puerto 8080 es el puerto por defecto del servidor web integrado en Spring Boot, ¿cuál es el puerto por defecto del protocolo HTTP estándar?", options: ["21", "80", "443", "25"], correct: 1, explanation: "El puerto por defecto de HTTP es el <b>80</b>. El 8080 es el que usa Tomcat por defecto cuando se ejecuta Spring Boot localmente." },
+            { id: 12, question: "¿Qué tipo de datos serializables se envían en un <code>DatagramPacket</code>?", options: ["Objetos serializados", "Flujos de caracteres", "Arreglos de bytes (<code>byte[]</code>)", "Documentos XML"], correct: 2, explanation: "Los Datagramas de UDP manejan datos sin procesar, es decir, un bloque de <b>bytes (<code>byte[]</code>)</b>. No usan la complejidad de la serialización de objetos de TCP." },
+            { id: 13, question: "¿Qué excepción se lanza en el servidor si un cliente intenta enviar un objeto de una clase que el servidor no conoce (no está en su classpath) durante la deserialización?", options: ["IOException", "SocketException", "ClassNotFoundException", "SecurityException"], correct: 2, explanation: "La deserialización (método <code>readObject()</code>) puede lanzar <code>IOException</code> y, crucialmente, <b><code>ClassNotFoundException</code></b> si la clase del objeto enviado no se encuentra." },
+            { id: 14, question: "En Spring Boot, ¿qué capa se encarga de aislar la lógica de negocio de los detalles de la base de datos?", options: ["Controller", "View", "Service", "Repository"], correct: 2, explanation: "La capa <b>Service</b> (<code>@Service</code>) es donde reside la lógica de negocio, sirviendo de intermediario entre el Controller y el Repository." },
+            { id: 15, question: "¿Cuál es el código de estado HTTP para indicar que un recurso ha sido <b>creado</b> con éxito?", options: ["200 OK", "201 Created", "204 No Content", "301 Moved Permanently"], correct: 1, explanation: "El código <b>201 Created</b> es la respuesta estándar que se debe devolver tras un método POST exitoso que ha resultado en la creación de un nuevo recurso." },
+            { id: 16, question: "¿Qué anotación usarías para inyectar una instancia del <code>UserService</code> en tu <code>UserController</code> en Spring Boot?", options: ["@Component", "@Autowire", "@Inject", "@Autowired"], correct: 3, explanation: "<b><code>@Autowired</code></b> es la anotación más común en Spring para la inyección de dependencias (aunque inyección por constructor es la práctica recomendada)." },
+            { id: 17, question: "¿Qué tipo de <code>Socket</code> NO garantiza el orden de llegada de los mensajes?", options: ["<code>Socket</code> (TCP)", "<code>ServerSocket</code> (TCP)", "<code>DatagramSocket</code> (UDP)", "<code>MulticastSocket</code> (TCP)"], correct: 2, explanation: "El <b><code>DatagramSocket</code></b> utiliza UDP, un protocolo sin conexión que no tiene mecanismos para garantizar el orden de los paquetes." },
+            { id: 18, question: "El verbo HTTP <b>PUT</b> se diferencia de <b>PATCH</b> en que PUT está destinado a:", options: ["Crear siempre un nuevo recurso", "Actualizar parcialmente un recurso", "Reemplazar completamente el recurso", "Obtener una lista de recursos"], correct: 2, explanation: "<b>PUT</b> reemplaza el recurso con los datos enviados, mientras que PATCH solo aplica cambios parciales." },
+            { id: 19, question: "¿Qué interfaz de Java es crucial para cerrar recursos automáticamente (ej: Sockets, Flujos) usando un bloque <code>try-with-resources</code>?", options: ["Cloneable", "Serializable", "AutoCloseable", "Runnable"], correct: 2, explanation: "La interfaz <b><code>AutoCloseable</code></b> es la base para el patrón <code>try-with-resources</code>, que garantiza que el método <code>close()</code> se llame al salir del bloque <code>try</code>." },
+            { id: 20, question: "¿Qué hace la anotación <code>@RequestParam</code> en un método de controlador de Spring?", options: ["Extrae un valor del cuerpo JSON", "Extrae un valor de la URL (ruta)", "Extrae un valor de la Query String (parámetros <code>?</code>)", "Mapea el método a una petición POST"], correct: 2, explanation: "<code>@RequestParam</code> se usa para obtener valores de la <b>cadena de consulta</b> (Query String) de la URL (ej: <code>?nombre=valor</code>)." }
+        ];
+
+        const codeQuestions = [
+            // Originales
+            { 
+                id: 1, 
+                question: "¿Qué línea de código falta para que este servidor TCP acepte la conexión?", 
+                code: `public class Servidor {
+    public static void main(String[] args) throws IOException {
+        ServerSocket servidor = new ServerSocket(8000);
+        System.out.println("Esperando conexión...");
+        
+        // LÍNEA QUE FALTA
+
+        socket.close();
+    }
+}`, 
+                options: [
+                    "servidor.open();",
+                    "Socket socket = servidor.accept();",
+                    "servidor.connect();",
+                    "Socket socket = new Socket(\"localhost\", 8000);"
+                ], 
+                correct: 1, 
+                explanation: "El método <b><code>accept()</code></b> en el <code>ServerSocket</code> es el encargado de esperar, aceptar la conexión del cliente y devolver el <code>Socket</code> de comunicación." 
+            },
+            { 
+                id: 2, 
+                question: "¿Qué tipo de dato devuelve <code>readObject()</code> y qué es necesario para usarlo?", 
+                code: `ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+MiObjeto objeto = ois.readObject(); // Error de compilación`, 
+                options: [
+                    "Devuelve <code>InputStream</code>, debe convertirse a <code>Object</code>.",
+                    "Devuelve <code>void</code>, la lectura se hace de forma automática.",
+                    "Devuelve <code>Object</code>, requiere un <b>Cast</b> explícito a <code>MiObjeto</code>.",
+                    "Devuelve <code>byte[]</code>, debe pasarse por un <code>BufferedReader</code>."
+                ], 
+                correct: 2, 
+                explanation: "El método <code>readObject()</code> devuelve un objeto genérico de tipo <b><code>Object</code></b>, por lo que es necesario un <code>(MiObjeto)</code> antes de la llamada para realizar el cast correcto. La línea correcta es: <code>(MiObjeto) ois.readObject();</code>" 
+            },
+            { 
+                id: 3, 
+                question: "¿Qué anotación debe recibir el parámetro <code>body</code> para inyectar los datos JSON de la petición en un método <code>POST</code> de Spring Boot?", 
+                code: `@PostMapping("/productos")
+public Producto crearProducto(Producto body) {
+    // ... guarda en DB ...
+    return body;
+}`, 
+                options: [
+                    "@RequestParam(\"body\")",
+                    "@PathVariable",
+                    "No necesita anotación",
+                    "@RequestBody"
+                ], 
+                correct: 3, 
+                explanation: "La anotación <b><code>@RequestBody</code></b> le dice a Spring que tome el cuerpo de la petición HTTP (normalmente un JSON) y lo convierta automáticamente al objeto Java especificado (<code>Producto</code>) mediante un proceso llamado Deserialización." 
+            },
+            // Nuevas
+            {
+                id: 4,
+                question: "Al usar <code>try-with-resources</code> para liberar el <code>Socket</code>, ¿qué interfaz debe implementar el recurso?",
+                code: `public static void main(String[] args) throws IOException {
+    try (Socket socket = new Socket("localhost", 8000)) {
+        // Comunicación...
+    } // El socket se cierra automáticamente aquí.
+}`,
+                options: [
+                    "Runnable",
+                    "Comparable",
+                    "Serializable",
+                    "AutoCloseable"
+                ],
+                correct: 3,
+                explanation: "Para que un recurso pueda ser utilizado en un bloque <code>try-with-resources</code> (cerrado automáticamente), debe implementar la interfaz <b><code>AutoCloseable</code></b> (o <code>Closeable</code>, que la extiende). Las clases <code>Socket</code>, <code>ServerSocket</code>, y los flujos de I/O de Java lo implementan."
+            },
+            {
+                id: 5,
+                question: "¿Cuál es el error en este mapeo de Spring Boot para obtener el ID?",
+                code: `@RestController
+public class UserController {
+    @GetMapping("/users/{id}")
+    public User getUserById(String userId) {
+        // ...
+    }
+}`,
+                options: [
+                    "El tipo de retorno debe ser <code>ResponseEntity</code>.",
+                    "El nombre del parámetro Java no coincide con el de la ruta (<code>id</code> vs <code>userId</code>).",
+                    "Falta la anotación <b><code>@PathVariable</code></b> en el parámetro <code>userId</code>.",
+                    "El método debe ser <code>POST</code> para pasar un ID."
+                ],
+                correct: 2,
+                explanation: "Para inyectar el valor de la ruta (<code>{id}</code>) en el parámetro del método (<code>userId</code>), es necesario usar <b><code>@PathVariable</code></b>. Sin él, Spring no sabe de dónde obtener el valor: <code>@PathVariable(\"id\") String userId</code>."
+            },
+            {
+                id: 6,
+                question: "En un cliente UDP, ¿qué se debe definir en el <code>DatagramPacket</code> antes de <b>enviar</b>lo?",
+                code: `byte[] data = "Hello UDP".getBytes();
+InetAddress address = InetAddress.getByName("localhost");
+int port = 9876;
+// DatagramPacket packet = LÍNEA QUE FALTA;
+DatagramSocket socket = new DatagramSocket();
+socket.send(packet);`,
+                options: [
+                    "<code>new DatagramPacket(data, data.length);</code>",
+                    "<code>new DatagramPacket(data, port);</code>",
+                    "<code>new DatagramPacket(data, data.length, address, port);</code>",
+                    "<code>new DatagramPacket(address, port, data);</code>"
+                ],
+                correct: 2,
+                explanation: "Para enviar un <code>DatagramPacket</code> se necesita el buffer de datos (<code>data</code>), la longitud (<code>data.length</code>), la dirección IP de destino (<code>address</code>) y el puerto de destino (<code>port</code>)."
+            },
+            {
+                id: 7,
+                question: "¿Cómo se debe llamar el servicio para seguir la convención de inyección por constructor recomendada en Spring?",
+                code: `@RestController
+public class ProductController {
+    private final ProductService productService;
+    
+    public ProductController(ProductService service) {
+        // LÍNEA QUE FALTA
+    }
+}`,
+                options: [
+                    "<code>service = new ProductService();</code>",
+                    "<code>this.productService = service;</code>",
+                    "<code>@Autowired ProductService productService;</code>",
+                    "<code>service.init();</code>"
+                ],
+                correct: 1,
+                explanation: "Para la inyección por constructor, la variable <code>final</code> debe ser inicializada con el valor del parámetro pasado por el constructor. Spring se encarga de inyectar el bean <code>ProductService</code>."
+            },
+            {
+                id: 8,
+                question: "¿Qué anotación de Spring es necesaria para que la clase <code>Reporte</code> sea gestionada por Spring y pueda ser inyectada en otras clases (como un servicio o controlador)?",
+                code: `public class Reporte {
+    // ... lógica de reportes ...
+}`,
+                options: [
+                    "@Autowired",
+                    "@Entity",
+                    "@Component (o @Service/@Repository)",
+                    "@Configuration"
+                ],
+                correct: 2,
+                explanation: "La anotación fundamental para que una clase sea considerada un 'Bean' y gestionada por el contenedor de Spring es <b><code>@Component</code></b>. <code>@Service</code> y <code>@Repository</code> son especializaciones de <code>@Component</code>."
+            },
+            {
+                id: 9,
+                question: "En una conexión TCP, ¿qué clase se debe usar para enviar texto línea por línea de forma fácil?",
+                code: `OutputStream os = socket.getOutputStream();
+// ¿Qué clase envuelve 'os' para escribir líneas?`,
+                options: [
+                    "ObjectOutputStream",
+                    "DataOutputStream",
+                    "BufferedReader",
+                    "PrintWriter"
+                ],
+                correct: 3,
+                explanation: "<b><code>PrintWriter</code></b> es una clase de utilidad que facilita el envío de texto línea por línea (usando el método <code>println()</code>) a un flujo de salida."
+            },
+            {
+                id: 10,
+                question: "¿Cuál es el endpoint que mapea la siguiente URL, obteniendo el ID y el filtro?",
+                code: `@GetMapping(LÍNEA QUE FALTA)
+public Producto getProduct(
+    @PathVariable Long id, 
+    @RequestParam String filter) {
+    // URL: /api/products/1?filter=price
+    // ...
+}`,
+                options: [
+                    "\"/api/products?id={id}&filter\"",
+                    "\"/api/products/{id}?filter\"",
+                    "\"/api/products/{id}\"",
+                    "\"/api/products/{id}?filter={filter}\""
+                ],
+                correct: 2,
+                explanation: "El <code>id</code> se obtiene de la ruta (<code>@PathVariable</code>), y el <code>filter</code> de la Query String (<code>@RequestParam</code>). El mapping solo necesita definir la parte de la ruta, ya que los <code>RequestParam</code> son implícitos: <b><code>\"/api/products/{id}\"</code></b>."
+            }
+        ];
+        
+        const practicalCases = [
+            // Originales
+            { 
+                id: 1, 
+                scenario: "Necesitas una comunicación ultrarrápida para enviar la posición de jugadores en un videojuego multijugador, donde perder algún paquete ocasionalmente es aceptable.", 
+                options: [
+                    "Sockets TCP (Clase Socket)", 
+                    "API REST con GET/POST", 
+                    "Sockets UDP (Clase DatagramSocket)", 
+                    "Programación con RMI"
+                ], 
+                correct: 2, 
+                explanation: "<b>UDP</b> es ideal para aplicaciones que necesitan baja latencia (rapidez) como los juegos o streaming. Su falta de fiabilidad se compensa con la velocidad, y la pérdida ocasional de un paquete de posición es tolerable." 
+            },
+            { 
+                id: 2, 
+                scenario: "Estás diseñando el endpoint para actualizar <b>completamente</b> un recurso existente (ej: un producto) en tu API REST.", 
+                options: [
+                    "Método HTTP GET", 
+                    "Método HTTP POST", 
+                    "Método HTTP PUT", 
+                    "Método HTTP DELETE"
+                ], 
+                correct: 2, 
+                explanation: "El método <b>PUT</b> se utiliza para reemplazar o actualizar completamente un recurso con los datos enviados. Si solo se actualizara una parte, se usaría PATCH." 
+            },
+            { 
+                id: 3, 
+                scenario: "Un cliente se conecta a tu <code>ServerSocket</code> y, tras aceptar la conexión, quieres enviarle un objeto <code>Informe.java</code>. ¿Qué debe implementar <code>Informe.java</code> y qué flujo usarías?", 
+                options: [
+                    "Implementar <code>Runnable</code> y usar <code>DataOutputStream</code>", 
+                    "Implementar <code>Serializable</code> y usar <code>ObjectOutputStream</code>", 
+                    "Implementar <code>Entity</code> y usar <code>PrintWriter</code>", 
+                    "Usar UDP con <code>DatagramPacket</code>"
+                ], 
+                correct: 1, 
+                explanation: "Para enviar objetos por TCP se requiere que la clase implemente la interfaz <b><code>Serializable</code></b> y utilizar un flujo de salida de objetos, el <b><code>ObjectOutputStream</code></b>, para serializar el objeto." 
+            },
+            { 
+                id: 4, 
+                scenario: "El equipo de Front-end necesita cargar una lista de usuarios. El endpoint es <code>/api/users</code>. Quieren filtrar por nombre: <code>?name=alice</code>.", 
+                options: [
+                    "El Controller debe usar <code>@PathVariable</code> para <code>name</code>.", 
+                    "El Controller debe usar <code>@RequestBody</code> para <code>name</code>.", 
+                    "El Controller debe usar <code>@RequestParam</code> para <code>name</code>.", 
+                    "Debe usarse un método HTTP POST."
+                ], 
+                correct: 2, 
+                explanation: "El parámetro de filtro está en la Query String (<code>?name=alice</code>), por lo que el Controller debe usar la anotación <b><code>@RequestParam</code></b> para mapear ese valor al parámetro del método." 
+            },
+            // Nuevos
+            { 
+                id: 5, 
+                scenario: "Un cliente envía un JSON con datos incompletos o incorrectos (ej: un nombre vacío donde es obligatorio) a un endpoint <code>POST</code>.", 
+                options: [
+                    "Retornar 200 OK", 
+                    "Retornar 404 Not Found", 
+                    "Retornar 400 Bad Request", 
+                    "Retornar 500 Internal Server Error"
+                ], 
+                correct: 2, 
+                explanation: "Un cliente enviando datos inválidos es un error del cliente. El código correcto es <b>400 Bad Request</b>." 
+            },
+            { 
+                id: 6, 
+                scenario: "Necesitas implementar la lógica de negocio para calcular el descuento final en el precio de un producto antes de guardarlo en la base de datos.", 
+                options: [
+                    "En el Controller (dentro del método <code>@PostMapping</code>)", 
+                    "En el Service (método <code>calculateDiscount()</code>)", 
+                    "En el Repository (dentro del método <code>save()</code>)", 
+                    "En la clase del Modelo (<code>@Entity</code>)"
+                ], 
+                correct: 1, 
+                explanation: "La <b>Capa Service</b> (<code>@Service</code>) está diseñada para contener toda la lógica de negocio y las reglas específicas de la aplicación, manteniendo el Controller y el Repository limpios." 
+            },
+            { 
+                id: 7, 
+                scenario: "Estás creando un servidor de transferencia de archivos por lotes, donde la integridad y el orden de los datos son <b>absolutamente cruciales</b>.", 
+                options: [
+                    "Usar Sockets TCP para garantizar la fiabilidad.", 
+                    "Usar Sockets UDP para la velocidad.", 
+                    "Usar un enfoque RESTful para la transferencia.", 
+                    "Usar <code>DatagramSocket</code> para evitar el overhead."
+                ], 
+                correct: 0, 
+                explanation: "<b>TCP</b> es el protocolo orientado a conexión y fiable que garantiza que todos los datos lleguen, y lo hagan en el orden correcto, algo esencial para la transferencia de archivos." 
+            },
+            { 
+                id: 8, 
+                scenario: "Un cliente de tu API REST quiere actualizar solo la descripción de un producto sin modificar ningún otro campo (nombre, precio, stock).", 
+                options: [
+                    "Usar GET al endpoint <code>/products/1</code>", 
+                    "Usar PUT al endpoint <code>/products/1</code>", 
+                    "Usar POST al endpoint <code>/products/1</code>", 
+                    "Usar PATCH al endpoint <code>/products/1</code>"
+                ], 
+                correct: 3, 
+                explanation: "<b>PATCH</b> es el verbo HTTP semánticamente correcto para aplicar modificaciones parciales a un recurso." 
+            },
+            { 
+                id: 9, 
+                scenario: "El cliente de tu API hace una petición a <code>/api/v1/usuarios/100</code> y el usuario con ID 100 no existe en la base de datos.", 
+                options: [
+                    "Lanzar una excepción y devolver 500 Internal Server Error.", 
+                    "Devolver 200 OK con un cuerpo JSON vacío.", 
+                    "Devolver 404 Not Found.", 
+                    "Devolver 403 Forbidden."
+                ], 
+                correct: 2, 
+                explanation: "El código <b>404 Not Found</b> es el estándar para indicar que el recurso solicitado no existe, es el código más preciso para este escenario." 
+            },
+            { 
+                id: 10, 
+                scenario: "Necesitas un <code>DatagramSocket</code> que pueda recibir paquetes de cualquier IP en un puerto específico (ej: 5000).", 
+                options: [
+                    "<code>new DatagramSocket(5000);</code>", 
+                    "<code>new Socket(\"localhost\", 5000);</code>", 
+                    "<code>new DatagramSocket();</code>", 
+                    "<code>new ServerSocket(5000);</code>"
+                ], 
+                correct: 0, 
+                explanation: "Para UDP, se usa <b><code>DatagramSocket</code></b>. El constructor con el número de puerto abre el socket para recibir datagramas en ese puerto." 
+            }
+        ];
+
+        // ------------------ FUNCIONES DE LÓGICA ------------------
+
+        // FLASHCARD FUNCTIONS
+        function showCard(index) {
+            if (!flashcards.length) return;
+            document.getElementById('card-front').textContent = flashcards[index].front;
+            document.getElementById('card-back').innerHTML = flashcards[index].back; // Usar innerHTML para respetar <b>
+            document.getElementById('current-card').textContent = index + 1;
+            document.getElementById('total-cards').textContent = flashcards.length;
+            document.getElementById('flashcard').classList.remove('flipped');
+        }
+
+        function flipCard() {
+            document.getElementById('flashcard').classList.toggle('flipped');
+        }
+
+        function nextCard() {
+            if (!flashcards.length) return;
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            showCard(currentCardIndex);
+        }
+
+        function prevCard() {
+            if (!flashcards.length) return;
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            showCard(currentCardIndex);
+        }
+
+        // TEST GENERAL FUNCTIONS
+        function renderTestQuestions() {
+            const container = document.getElementById('test-questions');
+            container.innerHTML = '';
+            testQuestions.forEach(q => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.innerHTML = `
+                    <h3>Pregunta ${q.id}:</h3>
+                    <p style="font-weight: 500;">${q.question}</p>
+                    <div class="options" id="test-options-${q.id}">
+                        ${q.options.map((opt, i) => `
+                            <div class="option" onclick="selectTestOption(${q.id}, ${i})">
+                                ${opt}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="explanation" id="test-explanation-${q.id}" style="display: none;"></div>
+                `;
+                container.appendChild(questionDiv);
+            });
+        }
+
+        function selectTestOption(questionId, optionIndex) {
+            testAnswers[questionId] = optionIndex;
+            const optionsDiv = document.getElementById(`test-options-${questionId}`);
+            const options = optionsDiv.querySelectorAll('.option');
+            options.forEach((opt, i) => {
+                opt.classList.remove('selected');
+                if (i === optionIndex) {
+                    opt.classList.add('selected');
+                }
+            });
+        }
+
+        function submitTest() {
+            if (Object.keys(testAnswers).length < testQuestions.length) {
+                alert("¡Debes responder todas las preguntas antes de finalizar el test!");
+                return;
+            }
+
+            let correctCount = 0;
+            const resultDiv = document.getElementById('test-result');
+
+            testQuestions.forEach(q => {
+                const selected = testAnswers[q.id];
+                const correct = q.correct;
+                const optionsDiv = document.getElementById(`test-options-${q.id}`);
+                const options = optionsDiv.querySelectorAll('.option');
+                const explanationDiv = document.getElementById(`test-explanation-${q.id}`);
+
+                options.forEach((opt, i) => {
+                    opt.onclick = null; // Disable further clicks
+                    opt.classList.remove('selected');
+                    if (i === correct) {
+                        opt.classList.add('correct');
+                    } else if (i === selected && i !== correct) {
+                        opt.classList.add('incorrect');
+                    }
+                });
+
+                // Usar innerHTML para la explicación que contiene etiquetas HTML
+                if (selected === correct) {
+                    correctCount++;
+                    explanationDiv.className = 'success-box';
+                    explanationDiv.innerHTML = `<b>✅ ¡Correcto!</b><br><br><b>Explicación:</b> ${q.explanation}`;
+                } else {
+                    explanationDiv.className = 'warning-box';
+                    explanationDiv.innerHTML = `<b>❌ Incorrecto</b><br><br><b>Respuesta correcta:</b> ${q.options[correct]}<br><br><b>Explicación:</b> ${q.explanation}`;
+                }
+                explanationDiv.style.display = 'block';
+            });
+
+            const score = Math.round((correctCount / testQuestions.length) * 100);
+            const total = testQuestions.length;
+
+            resultDiv.classList.remove('fail');
+            if (score < 70) {
+                resultDiv.classList.add('fail');
+            }
+
+            resultDiv.innerHTML = `
+                <h2>Resultado del Test General</h2>
+                <p style="font-size: 2.5em; font-weight: bold; margin: 10px 0;">${score}%</p>
+                <p>Acertadas: ${correctCount} de ${total}</p>
+                <p style="margin-top: 15px;">${score >= 70 ? '¡Buen trabajo! Estás preparado para esta parte.' : 'Necesitas repasar, especialmente los fallos.'} </p>
+            `;
+            resultDiv.style.display = 'block';
+            window.scrollTo({ top: document.getElementById('test').offsetTop, behavior: 'smooth' });
+        }
+
+        // CODE QUESTIONS FUNCTIONS
+        function renderCodeQuestions() {
+            const container = document.getElementById('code-questions');
+            if (!container) return;
+            container.innerHTML = '';
+            codeQuestions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                
+                // Formatear el código para que se vea estructurado y con sintaxis resaltada
+                const formattedCode = formatCode(q.code);
+
+                questionDiv.innerHTML = `
+                    <h3>Pregunta de Código ${q.id}:</h3>
+                    <p style="font-weight: 500; margin-bottom: 10px;">${q.question}</p>
+                    <div class="code-block">${formattedCode}</div>
+                    <div class="options" id="code-options-${q.id}">
+                        ${q.options.map((opt, i) => `
+                            <div class="option" onclick="selectCodeOption(${q.id}, ${i})">
+                                ${opt}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div style="text-align: right; margin-top: 15px;">
+                        <button class="tab-button" onclick="checkCodeAnswer(${q.id})" id="code-check-button-${q.id}">Comprobar</button>
+                    </div>
+                    <div class="explanation" id="code-explanation-${q.id}" style="display: none;"></div>
+                `;
+                container.appendChild(questionDiv);
+            });
+        }
+        
+        // Función auxiliar para formatear y colorear el código
+        function formatCode(code) {
+            // Reemplazar caracteres especiales de HTML y luego aplicar resaltado
+            let highlightedCode = code.replace(/&/g, '&amp;')
+                                      .replace(/</g, '&lt;')
+                                      .replace(/>/g, '&gt;');
+
+            // Palabras clave de Java
+            const keywords = ['public', 'class', 'static', 'void', 'main', 'throws', 'new', 'return', 'try', 'catch', 'finally'];
+            // Tipos y clases comunes
+            const types = ['String', 'int', 'long', 'byte', 'Socket', 'ServerSocket', 'ObjectInputStream', 'ObjectOutputStream', 'DatagramPacket', 'DatagramSocket', 'IOException', 'Producto', 'User', 'ProductController', 'ProductService', 'InetAddress', 'OutputStream', 'Long'];
+
+            // Resaltar palabras clave y tipos
+            keywords.forEach(k => {
+                const regex = new RegExp(`\\b${k}\\b`, 'g');
+                highlightedCode = highlightedCode.replace(regex, `<span>${k}</span>`);
+            });
+            types.forEach(t => {
+                const regex = new RegExp(`\\b${t}\\b`, 'g');
+                highlightedCode = highlightedCode.replace(regex, `<span class="type">${t}</span>`);
+            });
+            
+            // Resaltar comentarios (solo las de línea sencilla)
+            highlightedCode = highlightedCode.replace(/(\/\/.*)/g, `<span class="comment">$1</span>`);
+            
+            // Resaltar anotaciones
+            highlightedCode = highlightedCode.replace(/(@[A-Za-z]+)/g, `<span class="type">$1</span>`);
+
+            return highlightedCode;
+        }
+
+
+        function selectCodeOption(questionId, optionIndex) {
+            codeAnswers[questionId] = optionIndex;
+            const optionsDiv = document.getElementById(`code-options-${questionId}`);
+            const options = optionsDiv.querySelectorAll('.option');
+            options.forEach((opt, i) => {
+                opt.classList.remove('selected');
+                if (i === optionIndex) {
+                    opt.classList.add('selected');
+                }
+            });
+        }
+
+        function checkCodeAnswer(questionId) {
+            const question = codeQuestions.find(q => q.id === questionId);
+            if (!question) return;
+
+            const selected = codeAnswers[questionId];
+            const correct = question.correct;
+            const optionsDiv = document.getElementById(`code-options-${questionId}`);
+            const options = optionsDiv.querySelectorAll('.option');
+            const explanationDiv = document.getElementById(`code-explanation-${questionId}`);
+            const checkButton = document.getElementById(`code-check-button-${questionId}`);
+
+            if (selected === undefined) {
+                alert("Por favor, selecciona una opción.");
+                return;
+            }
+
+            // Lock options and button
+            options.forEach(opt => opt.onclick = null);
+            checkButton.style.display = 'none';
+
+            options.forEach((opt, i) => {
+                opt.classList.remove('selected');
+                if (i === correct) {
+                    opt.classList.add('correct');
+                } else if (i === selected && i !== correct) {
+                    opt.classList.add('incorrect');
+                }
+            });
+
+            // Usar innerHTML para la explicación que contiene etiquetas HTML
+            if (selected === correct) {
+                explanationDiv.className = 'success-box';
+                explanationDiv.innerHTML = `<b>✅ ¡Correcto!</b><br><br><b>Explicación:</b> ${question.explanation}`;
+            } else {
+                explanationDiv.className = 'warning-box';
+                explanationDiv.innerHTML = `<b>❌ Incorrecto</b><br><br><b>Respuesta correcta:</b> ${question.options[correct]}<br><br><b>Explicación:</b> ${question.explanation}`;
+            }
+            explanationDiv.style.display = 'block';
+        }
+
+        // PRACTICAL CASES FUNCTIONS
+        function renderPracticalCases() {
+            const container = document.getElementById('practical-cases');
+            container.innerHTML = '';
+            practicalCases.forEach((c, index) => {
+                const caseDiv = document.createElement('div');
+                caseDiv.className = 'question';
+                caseDiv.innerHTML = `
+                    <h3>Caso Práctico ${c.id}:</h3>
+                    <p style="font-weight: 500; color: #e10e5b;"><b>ESCENARIO:</b> ${c.scenario}</p>
+                    <div class="options" id="practical-options-${c.id}">
+                        ${c.options.map((opt, i) => `
+                            <div class="option" onclick="selectPracticalOption(${c.id}, ${i})">
+                                ${opt}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div style="text-align: right; margin-top: 15px;">
+                        <button class="tab-button" onclick="checkPracticalAnswer(${c.id})" id="practical-check-button-${c.id}">Comprobar Solución</button>
+                    </div>
+                    <div class="explanation" id="practical-explanation-${c.id}" style="display: none;"></div>
+                `;
+                container.appendChild(caseDiv);
+            });
+        }
+        
+        function selectPracticalOption(caseId, optionIndex) {
+            practicalAnswers[caseId] = optionIndex;
+            const optionsDiv = document.getElementById(`practical-options-${caseId}`);
+            const options = optionsDiv.querySelectorAll('.option');
+            options.forEach((opt, i) => {
+                opt.classList.remove('selected');
+                if (i === optionIndex) {
+                    opt.classList.add('selected');
+                }
+            });
+        }
+
+        function checkPracticalAnswer(caseId) {
+            const practical = practicalCases.find(c => c.id === caseId);
+            if (!practical) return;
+
+            const selected = practicalAnswers[caseId];
+            const correct = practical.correct;
+            const optionsDiv = document.getElementById(`practical-options-${caseId}`);
+            const options = optionsDiv.querySelectorAll('.option');
+            const explanationDiv = document.getElementById(`practical-explanation-${caseId}`);
+            const checkButton = document.getElementById(`practical-check-button-${caseId}`);
+
+            if (selected === undefined) {
+                alert("Por favor, selecciona una opción antes de comprobar.");
+                return;
+            }
+
+            // Lock options and button
+            options.forEach(opt => opt.onclick = null);
+            checkButton.style.display = 'none';
+
+            options.forEach((opt, i) => {
+                opt.classList.remove('selected');
+                if (i === correct) {
+                    opt.classList.add('correct');
+                } else if (i === selected && i !== correct) {
+                    opt.classList.add('incorrect');
+                }
+            });
+
+            // Usar innerHTML para la explicación que contiene etiquetas HTML
+            if (selected === correct) {
+                explanationDiv.className = 'success-box';
+                explanationDiv.innerHTML = `<b>✅ ¡Solución Correcta!</b><br><br><b>Explicación:</b> ${practical.explanation}`;
+            } else {
+                explanationDiv.className = 'warning-box';
+                explanationDiv.innerHTML = `<b>❌ Solución Incorrecta</b><br><br><b>Solución correcta:</b> ${practical.options[correct]}<br><br><b>Explicación:</b> ${practical.explanation}`;
+            }
+            explanationDiv.style.display = 'block';
+        }
+
+
+        // TAB CONTROL
+        function showTab(tabName, clickedButton) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            
+            if (clickedButton) {
+                clickedButton.classList.add('active');
+            }
+        }
+        
+        // INITIALIZE
+        document.addEventListener('DOMContentLoaded', () => {
+            showCard(0);
+            renderTestQuestions();
+            renderCodeQuestions();
+            renderPracticalCases();
+            
+            // Activar la primera pestaña por defecto
+            const firstButton = document.querySelector('.tabs .tab-button');
+            if (firstButton) {
+                showTab('theory', firstButton);
+            } else {
+                showTab('theory');
+            }
+        });
+    </script>
+</body>
+</html>
