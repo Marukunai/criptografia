@@ -1,0 +1,1 @@
+"FALLO DETECTADO: [2025-11-14 12:16:27] Proceso 'ping' ha devuelto 1." 
