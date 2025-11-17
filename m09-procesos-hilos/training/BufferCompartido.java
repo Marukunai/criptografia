@@ -76,7 +76,7 @@ class Productor implements Runnable {
                 // El productor pondrá los números 0 al 9
                 buffer.poner(i);
                 // Opcional: Pausa para simular trabajo
-                // Thread.sleep(50); 
+                Thread.sleep(50); 
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -102,7 +102,7 @@ class Consumidor implements Runnable {
                 int valorObtenido = buffer.obtener();
                 sumaTotal += valorObtenido;
                 // Opcional: Pausa para simular trabajo
-                // Thread.sleep(100); 
+                Thread.sleep(100); 
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
