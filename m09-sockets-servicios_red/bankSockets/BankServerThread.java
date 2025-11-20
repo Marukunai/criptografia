@@ -1,3 +1,5 @@
+package bankSockets;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
@@ -25,13 +27,13 @@ public class BankServerThread {
 
                 synchronized (BankServer.class) {
                     if (connexionsActives >= MAX_CLIENTS) {
-                        System.out.println("❌ Connexió rebutjada des de " + clientSocket.getInetAddress() +
+                        System.out.println("Connexió rebutjada des de " + clientSocket.getInetAddress() +
                                            ". Màxim de 50 clients ja connectats.");
                         try {
                             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
                             out.println("ERROR 503: Servidor saturat. Torna-ho a intentar més tard.");
                         } catch (IOException e) {
-                            System.out.println("⚠ No s'ha pogut enviar missatge d'error al client.");
+                            System.out.println("No s'ha pogut enviar missatge d'error al client.");
                         } finally {
                             clientSocket.close();
                         }
@@ -40,7 +42,7 @@ public class BankServerThread {
                     connexionsActives++;
                 }
 
-                System.out.println("✅ Client connectat. Total clients: " + connexionsActives);
+                System.out.println("Client connectat. Total clients: " + connexionsActives);
                 Thread clientThread = new Thread(new ClientHandler(clientSocket));
                 clientThread.start();
             }
@@ -51,6 +53,6 @@ public class BankServerThread {
 
     public static synchronized void desconnectarClient() {
         connexionsActives--;
-        System.out.println("🔌 Client desconnectat. Total clients: " + connexionsActives);
+        System.out.println("Client desconnectat. Total clients: " + connexionsActives);
     }
 }

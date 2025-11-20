@@ -1,3 +1,5 @@
+package bankSockets;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -19,9 +21,11 @@ public class ClientHandler implements Runnable {
             }
 
         } catch (IOException e) {
-            System.out.println("⚠ Error amb client: " + e.getMessage());
+            System.out.println("Error amb client: " + e.getMessage());
         } finally {
             try {
+                // Esperar 15 segons abans de tancar la connexió
+                Thread.sleep(15000);
                 socket.close();
             } catch (IOException e) {
                 // Ignora
@@ -31,7 +35,7 @@ public class ClientHandler implements Runnable {
     }
 
     private String processarComanda(String comanda) {
-        System.out.println("📩 Comanda: " + comanda);
+        System.out.println("Comanda: " + comanda);
         String[] parts = comanda.split(" ");
         if (parts.length == 0) return "300";
 
@@ -62,7 +66,7 @@ public class ClientHandler implements Runnable {
                 break;
         }
 
-        System.out.println("🔁 Resposta: " + resposta);
+        System.out.println("Resposta: " + resposta);
         return resposta;
     }
 
